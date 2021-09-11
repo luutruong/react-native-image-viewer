@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "es2015",
+    "jsx": "react-native",
+    "declaration": true,
+    "removeComments": false,
+    "strict": true,
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "node"
+  }
+}
