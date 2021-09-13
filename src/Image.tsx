@@ -23,8 +23,6 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
   private _panResponder: PanResponderInstance;
   private _translateXY: Animated.ValueXY;
 
-  // private _baseScale = new Animated.Value(1);
-  // private _pinchScale = new Animated.Value(1);
   private _scale = new Animated.Value(1);
 
   private _lastOffset: {x: number; y: number} = {x: 0, y: 0};
@@ -244,27 +242,42 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
 
   private _onPinchHandlerStateChange = (evt: HandlerStateChangeEvent) => {
     if (evt.nativeEvent.oldState === State.ACTIVE) {
-      console.log('_onPinchHandlerStateChange', evt.nativeEvent.scale);
+      console.log('_onPinchHandlerStateChange', evt.nativeEvent);
+
       let scale = evt.nativeEvent.scale as number;
-      if (scale < 1) {
-        scale = 1;
+      if (scale < this._getMinimumScale()) {
+        scale = this._getMinimumScale();
         this.props.onImageZoom(false);
       } else {
-        scale = Math.min(2, scale);
+        scale = Math.min(this._getMaximumScale(), scale);
       }
 
       this._lastScale = scale;
-      this._scale.setValue(scale);
+
+      this._translateXY.setOffset({x: 0, y: 0});
+      this._lastOffset = {x: 0, y: 0};
+      Animated.parallel([
+        Animated.timing(this._scale, {
+          toValue: scale,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+        Animated.timing(this._translateXY, {
+          toValue: {x: 0, y: 0},
+          duration: 250,
+          useNativeDriver: true,
+        })
+      ]).start()
     }
   };
   private _onPinchGestureEvent = (evt: GestureEvent) => {
     if (evt.nativeEvent.state === State.ACTIVE) {
       const scale = this._lastScale * (evt.nativeEvent.scale as number);
 
-      if (scale < 1) {
-        this._scale.setValue(1);
+      if (scale < this._getMinimumScale()) {
+        this._scale.setValue(this._getMinimumScale());
       } else {
-        this._scale.setValue(Math.min(2, scale));
+        this._scale.setValue(Math.min(this._getMaximumScale(), scale));
       }
 
       this.props.onImageZoom(true);
