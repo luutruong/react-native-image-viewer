@@ -20,7 +20,8 @@ import {
 
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import axios from 'axios';
-import ImageViewer from '..';
+import ImageViewer from './components/ImageViewer';
+import Image from './components/ImageViewer/Image';
 
 const App: () => Node = () => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -32,7 +33,8 @@ const App: () => Node = () => {
   };
 
   function showImageViewer() {
-    axios.get('https://picsum.photos/v2/list?limit=20')
+    axios
+      .get('https://picsum.photos/v2/list?limit=20')
       .then((res: any) => res.data)
       .then((res: any) => {
         const images = res.map((item: any) => ({
@@ -40,16 +42,17 @@ const App: () => Node = () => {
           height: item.height,
           url: item.download_url,
         }));
-
         imageViewerRef.current.show(images);
-      });    
+      });
   }
 
   return (
     <SafeAreaView style={backgroundStyle}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <View style={styles.container}>
-        <TouchableOpacity onPress={() => showImageViewer()} hitSlop={{top: 20,left: 20, right: 20, bottom: 20}}>
+        <TouchableOpacity
+          onPress={() => showImageViewer()}
+          hitSlop={{top: 20, left: 20, right: 20, bottom: 20}}>
           <View style={styles.button}>
             <Text style={styles.buttonText}>Show</Text>
           </View>
@@ -71,13 +74,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 50,
     paddingVertical: 15,
     borderWidth: 1,
-    borderColor: '#999',
+    borderColor: '#2985c6',
     borderRadius: 10,
+    backgroundColor: '#2577b1',
   },
   buttonText: {
     fontSize: 15,
     textTransform: 'uppercase',
     fontWeight: '600',
+    color: '#fff',
   },
 });
 
