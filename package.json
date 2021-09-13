@@ -1,8 +1,8 @@
 {
-  "name": "react-native-image-viewer",
+  "name": "@luutruong/react-native-image-viewer",
   "version": "1.0.0",
   "description": "React Native Image Viewer",
-  "main": "index.js",
+  "main": "dist/index.js",
   "license": "MIT",
   "peerDependencies": {
     "react-native": ">= 0.64.0"
@@ -10,6 +10,19 @@
   "devDependencies": {
     "@types/react": "^17.0.20",
     "@types/react-native": "^0.65.0",
-    "react-native": ">= 0.64.0"
+    "react-native": ">= 0.64.0",
+    "typescript": "^4.4.3"
+  },
+  "dependencies": {
+    "react-native-gesture-handler": "^1.10.3"
+  },
+  "files": [
+    "package.json",
+    "yarn.lock",
+    "index.tsx",
+    "Image.tsx"
+  ],
+  "scripts": {
+    "build": "tsc ."
   }
 }

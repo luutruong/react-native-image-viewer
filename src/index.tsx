@@ -1,14 +1,7 @@
 import React from 'react';
 import {Modal, Dimensions, VirtualizedList} from 'react-native';
 import Image from './Image';
-
-interface ImageViewerImage {
-  url: string;
-  title?: string;
-  headers?: {[key: string]: any};
-  width?: number;
-  height?: number;
-}
+import {ImageViewerImageProps, SwipeDirection} from './index.d';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -20,20 +13,17 @@ class ImageViewer extends React.Component {
   };
   private _scrollRef: {current: VirtualizedList<any> | null} = React.createRef();
 
-  public show(images: ImageViewerImage[], startIndex: number = 0) {
+  public show(images: ImageViewerImageProps[], startIndex: number = 0) {
     this.setState({images, visible: true});
   }
 
   private _closeInternal = () => this.setState({visible: false});
-  private _renderImage = (info: {item: ImageViewerImage}) => (
+  private _renderImage = (info: {item: ImageViewerImageProps, index: number}) => (
     <Image
-      url={info.item.url}
-      width={info.item.width}
-      height={info.item.height}
-      headers={info.item.headers}
+      image={info.item}
       onClose={this._closeInternal}
-      onSwipe={(horizontal: boolean) => this.setState({scrollEnabled: horizontal})}
       onImageZoom={(zoom: boolean) => this.setState({scrollEnabled: !zoom})}
+      onSwipe={(direction: SwipeDirection) => this.setState({scrollEnabled: direction === 'left' || direction === 'right'})}
     />
   );
 
@@ -46,7 +36,7 @@ class ImageViewer extends React.Component {
           windowSize={2}
           data={this.state.images}
           renderItem={this._renderImage}
-          keyExtractor={(item: ImageViewerImage) => item.url}
+          keyExtractor={(item: ImageViewerImageProps) => item.url}
           getItemCount={() => this.state.images.length}
           getItem={(data: any, index: number) => data[index]}
           getItemLayout={(data: any, index: number) => ({
