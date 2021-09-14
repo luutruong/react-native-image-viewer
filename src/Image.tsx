@@ -319,7 +319,10 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
     }
 
     let innerComponent;
-    if (typeof renderFooter === 'function') {
+    if (renderFooter !== undefined) {
+      if (typeof renderFooter !== 'function') {
+        throw new Error('`renderFooter` must be a function');
+      }
       innerComponent = renderFooter(image.title);
     } else {
       innerComponent = (<Text style={styles.defaultText}>{image.title}</Text>);
