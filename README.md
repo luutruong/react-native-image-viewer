@@ -9,13 +9,13 @@
 Yarn:
 
 ```bash
-yarn add @luutruong/react-native-image-viewer react-native-gesture-handler
+yarn add @luu-truong/react-native-image-viewer react-native-gesture-handler
 ```
 
 NPM:
 
 ```bash
-npm install @luutruong/react-native-image-viewer react-native-gesture-handler
+npm install @luu-truong/react-native-image-viewer react-native-gesture-handler
 ```
 
 To complete installation you must following [this guide](https://docs.swmansion.com/react-native-gesture-handler/docs/) to setup `react-native-gesture-handler`
@@ -24,7 +24,7 @@ Usage:
 
 ```javascript
 
-import ImageViewer from '@luutruong/react-native-image-viewer';
+import ImageViewer from '@luu-truong/react-native-image-viewer';
 
 function Example() {
   const imageViewerRef = React.createRef();
@@ -38,7 +38,8 @@ function Example() {
       {
         url: '...',
         width: 1200,
-        height: 600
+        height: 600,
+        // see Image Object below to see available options
       }
     ]);
   }
@@ -59,7 +60,7 @@ function Example() {
 
 ## Documentation
 
-Image Props:
+Image Object:
 
 | Name | Type | Required | Description |
 | ---- | ---- | -------- | ----------- |
@@ -69,7 +70,21 @@ Image Props:
 | title | string | no | Image title |
 | headers | object | no | Headers to fetch with image |
 
-Image Viewer Props:
+Image Viewer Component Props:
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| debug | boolean | no | Print debug message. Default: false |
+| imageProps | object | no | Props passed to Image component. See Image Component Props |
+
+Image Component Props:
+
+| Name | Type | Required | Description |
+| --- | --- | --- | --- |
+| initialWidth | number | no | Default: 200 |
+| initialHeight | number | no | Default: 200 |
+| renderFooter | (title?: string) => JSX.Element | null | no | Default: undefined |
+| debug | boolean | no | Default: false |
 
 ## Examples
 

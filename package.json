@@ -1,5 +1,5 @@
 {
-  "name": "@luutruong/react-native-image-viewer",
+  "name": "@luu-truong/react-native-image-viewer",
   "version": "1.0.0",
   "description": "React Native Image Viewer",
   "main": "dist/src/index.js",
@@ -19,10 +19,12 @@
     "package.json",
     "yarn.lock",
     "index.tsx",
-    "Image.tsx"
+    "Image.tsx",
+    "dist"
   ],
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "watchman": "watchman watch \"$PWD/src\" && watchman -- trigger \"$PWD/src\" dev-setup '*.tsx' -- bash \"$PWD/dev-helper.sh\""
   },
   "repository": {
     "type": "git",
