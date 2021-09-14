@@ -3,6 +3,7 @@
 - Double tap to zoom image
 - Pinch to zoom image
 - Swipe down to close
+- Caption and summaries
 
 ## Installation
 
