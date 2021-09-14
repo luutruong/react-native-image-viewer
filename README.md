@@ -10,7 +10,9 @@
 $ yarn add @luutruong/react-native-image-viewer react-native-gesture-handler
 ```
 
-Example:
+To complete installation you must following (https://docs.swmansion.com/react-native-gesture-handler/docs/)[this guide] to setup `react-native-gesture-handler`
+
+Usage:
 
 ```javascript
 
@@ -47,6 +49,8 @@ function Example() {
 
 ```
 
+## Documentation
+
 Image Props:
 
 | Name | Type | Required | Description |
@@ -59,3 +63,24 @@ Image Props:
 
 Image Viewer Props:
 
+## Examples
+
+If you want to play with the API but don't feel like to trying it on a real device. Clone the repo and go to
+`demo` folder and run:
+
+```bash
+yarn install
+```
+
+If you want to try IOS, run `pod install` in the ios folder.
+
+Run `yarn start` to start metro server.
+
+Run `yarn ios` to playing with iOS simulator
+Run `yarn android` to playing with Android simulator
+
+## React native support
+
+| version | react-native version |
+| ----- | ----- |
+| 1.x.x | 0.64.0+ |
