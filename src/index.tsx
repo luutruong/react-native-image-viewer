@@ -1,12 +1,12 @@
 import React from 'react';
 import {Modal, Dimensions, VirtualizedList} from 'react-native';
 import Image from './Image';
-import {ImageViewerImageProps, ImageViewerProps, ImageViewerState, SwipeDirection} from './types';
+import {ImageViewerImageProps, ImageViewerComponentProps, ImageViewerComponentState, SwipeDirection} from './types';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
-class ImageViewer extends React.Component<ImageViewerProps, ImageViewerState> {
-  state: ImageViewerState = {
+class ImageViewer extends React.Component<ImageViewerComponentProps, ImageViewerComponentState> {
+  state: ImageViewerComponentState = {
     visible: false,
     images: [],
     scrollEnabled: true,
@@ -24,7 +24,12 @@ class ImageViewer extends React.Component<ImageViewerProps, ImageViewerState> {
       onClose={this._closeInternal}
       onImageZoom={(zoom: boolean) => this.setState({scrollEnabled: !zoom})}
       onSwipe={(direction: SwipeDirection) => this.setState({scrollEnabled: direction === 'left' || direction === 'right'})}
+      imageIndex={info.index}
+      imageTotal={this._getItemCount()}
+      // extendable props
       debug={this.props.debug}
+      initialWidth={this.props.imageProps?.initialWidth}
+      initialHeight={this.props.imageProps?.initialHeight}
     />
   );
 
@@ -35,6 +40,7 @@ class ImageViewer extends React.Component<ImageViewerProps, ImageViewerState> {
     offset: SCREEN_WIDTH * index,
     index,
   });
+
   private _keyExtractor = (item: ImageViewerImageProps) => item.url;
 
   render() {

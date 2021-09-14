@@ -9,10 +9,12 @@ import {
   Dimensions,
   StyleSheet,
   View,
-  PanResponderGestureState
+  PanResponderGestureState,
+  Text,
+  SafeAreaView
 } from 'react-native';
 import {HandlerStateChangeEvent, TapGestureHandler, PinchGestureHandler, State, GestureEvent} from 'react-native-gesture-handler';
-import {ImageComponentProps, ImageComponentState} from './types';
+import {ImageComponentOptionalProps, ImageComponentProps, ImageComponentState} from './types';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -20,6 +22,13 @@ const SCREEN_HEIGHT = Dimensions.get('window').height;
 const ImageAnimated = Animated.createAnimatedComponent(RNImage);
 
 class Image extends React.Component<ImageComponentProps, ImageComponentState> {
+  static defaultProps: ImageComponentOptionalProps = {
+    initialWidth: 200,
+    initialHeight: 200,
+    debug: false,
+    renderFooter: undefined,
+  };
+
   private _panResponder: PanResponderInstance;
   private _translateXY: Animated.ValueXY;
 
@@ -38,7 +47,7 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
       width: null,
       height: null,
       loading: true,
-    };
+    } as ImageComponentState;
 
     this._translateXY = new Animated.ValueXY();
     this._scale = new Animated.Value(1);
@@ -54,10 +63,6 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
       onPanResponderRelease: onPanEnd,
       onPanResponderMove: onPanMove,
     });
-
-    this._translateXY.addListener((value) => {
-      console.log('animated value', value);
-    })
   }
 
   private _onShouldSetPanResponder(evt: GestureResponderEvent) {
@@ -285,6 +290,62 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
 
   private _debug = (...args: any[]) => this.props.debug && console.log(...args);
 
+  private _renderHeader = () => {
+    const headerAnim: any = [
+      styles.header,
+      {
+        transform: [
+          {
+            translateY: this._translateXY.y.interpolate({
+              inputRange: [0, 100],
+              outputRange: [0, -100]
+            })
+          }
+        ]
+      }
+    ];
+
+    return (
+      <Animated.View style={headerAnim}>
+        <Text style={{color: '#fff'}}>{`${this.props.imageIndex + 1}/${this.props.imageTotal}`}</Text>
+      </Animated.View>
+    );
+  };
+
+  private _renderFooter = () => {
+    const {renderFooter, image} = this.props;
+    if (typeof renderFooter !== 'function' && !image.title) {
+      return null;
+    }
+
+    let innerComponent;
+    if (typeof renderFooter === 'function') {
+      innerComponent = renderFooter(image.title);
+    } else {
+      innerComponent = (<Text style={styles.defaultText}>{image.title}</Text>);
+    }
+
+    const footerAnim = [
+      styles.footer,
+      {
+        transform: [
+          {
+            translateY: this._translateXY.y.interpolate({
+              inputRange: [0, 100],
+              outputRange: [0, 100]
+            })
+          }
+        ]
+      }
+    ];
+
+    return (
+      <Animated.View style={footerAnim}>
+        {innerComponent}
+      </Animated.View>
+    );
+  };
+
   static getDerivedStateFromProps(nextProps: Readonly<ImageComponentProps>, prevState: Readonly<ImageComponentState>): any {
     if (prevState.width === null || prevState.height === null) {
       return {
@@ -320,14 +381,14 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
       ]
     };
     const computeImageStyle = {
-      width: 200,
-      height: 200,
+      width: this.props.initialWidth,
+      height: this.props.initialHeight,
     };
     if (this.state.width && this.state.height) {
       const ratio = this._getRatio();
       Object.assign(computeImageStyle, {
         width: Math.floor(ratio * this.state.width),
-        height: Math.floor(this.state.height * ratio),
+        height: Math.floor(ratio * this.state.height),
       })
     }
     const backdropStyle: any = [
@@ -358,6 +419,10 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
             </PinchGestureHandler>
           </TapGestureHandler>
         </Animated.View>
+        <SafeAreaView style={styles.safeAreaContainer} pointerEvents="none">
+          {this._renderHeader()}
+          {this._renderFooter()}
+        </SafeAreaView>
       </View>
     );
   }
@@ -374,6 +439,19 @@ const styles = StyleSheet.create({
   },
   backdrop: {
     backgroundColor: '#000',
+  },
+  header: {
+    alignItems: 'center',
+  },
+  footer: {
+    width: SCREEN_WIDTH,
+  },
+  safeAreaContainer: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  defaultText: {
+    color: '#fff',
   },
 });
 
