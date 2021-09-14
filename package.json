@@ -18,8 +18,6 @@
   "files": [
     "package.json",
     "yarn.lock",
-    "index.tsx",
-    "Image.tsx",
     "dist"
   ],
   "scripts": {
