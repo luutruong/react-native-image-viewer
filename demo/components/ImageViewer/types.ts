@@ -11,8 +11,7 @@ export type SwipeDirection = 'up' | 'down' | 'left' | 'right';
 export interface ImageComponentProps extends ImageComponentOptionalProps {
   image: ImageViewerImageProps;
   onClose: () => void;
-  onSwipe: (direction: SwipeDirection) => void;
-  onImageZoom: (isZoomOut: boolean) => void;
+  toggleEnableScroll: (enabled: boolean) => void;
 
   imageIndex: number;
   imageTotal: number;

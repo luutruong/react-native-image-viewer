@@ -22,8 +22,7 @@ class ImageViewer extends React.Component<ImageViewerComponentProps, ImageViewer
     <Image
       image={info.item}
       onClose={this._closeInternal}
-      onImageZoom={(zoom: boolean) => this.setState({scrollEnabled: !zoom})}
-      onSwipe={(direction: SwipeDirection) => this.setState({scrollEnabled: direction === 'left' || direction === 'right'})}
+      toggleEnableScroll={(enabled: boolean) => this.setState({scrollEnabled: enabled})}
       imageIndex={info.index}
       imageTotal={this._getItemCount()}
       // extendable props
