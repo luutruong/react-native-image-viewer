@@ -23,7 +23,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf dist/ && tsc",
     "watchman": "watchman watch \"$PWD/src\" && watchman -- trigger \"$PWD/src\" dev-setup '*.tsx' -- bash \"$PWD/dev-helper.sh\""
   },
   "repository": {
