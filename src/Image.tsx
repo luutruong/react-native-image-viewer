@@ -12,7 +12,7 @@ import {
   PanResponderGestureState
 } from 'react-native';
 import {HandlerStateChangeEvent, TapGestureHandler, PinchGestureHandler, State, GestureEvent} from 'react-native-gesture-handler';
-import {ImageComponentProps, ImageComponentState} from './index.d';
+import {ImageComponentProps, ImageComponentState} from './types';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;

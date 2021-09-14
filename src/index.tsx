@@ -1,7 +1,7 @@
 import React from 'react';
 import {Modal, Dimensions, VirtualizedList} from 'react-native';
 import Image from './Image';
-import {ImageViewerImageProps, SwipeDirection} from './index.d';
+import {ImageViewerImageProps, SwipeDirection} from './types';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 

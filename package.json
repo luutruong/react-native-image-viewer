@@ -2,13 +2,12 @@
   "name": "@luutruong/react-native-image-viewer",
   "version": "1.0.0",
   "description": "React Native Image Viewer",
-  "main": "dist/index.js",
+  "main": "dist/src/index.js",
   "license": "MIT",
   "peerDependencies": {
     "react-native": ">= 0.64.0"
   },
   "devDependencies": {
-    "@types/react": "^17.0.20",
     "@types/react-native": "^0.65.0",
     "react-native": ">= 0.64.0",
     "typescript": "^4.4.3"
@@ -23,6 +22,21 @@
     "Image.tsx"
   ],
   "scripts": {
-    "build": "tsc ."
-  }
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/luutruong/react-native-image-viewer.git"
+  },
+  "keywords": [
+    "react",
+    "native",
+    "image",
+    "viewer"
+  ],
+  "author": "luutruong",
+  "bugs": {
+    "url": "https://github.com/luutruong/react-native-image-viewer/issues"
+  },
+  "homepage": "https://github.com/luutruong/react-native-image-viewer#readme"
 }
