@@ -58,7 +58,7 @@ const App: () => Node = () => {
           </View>
         </TouchableOpacity>
       </View>
-      <ImageViewer ref={imageViewerRef} />
+      <ImageViewer ref={imageViewerRef} debug />
     </SafeAreaView>
   );
 };
