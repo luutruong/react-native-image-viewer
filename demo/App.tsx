@@ -21,7 +21,6 @@ import {
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import axios from 'axios';
 import ImageViewer from './components/ImageViewer';
-import Image from './components/ImageViewer/Image';
 
 const App: () => Node = () => {
   const isDarkMode = useColorScheme() === 'dark';
@@ -41,6 +40,7 @@ const App: () => Node = () => {
           width: item.width,
           height: item.height,
           url: item.download_url,
+          title: item.author,
         }));
         imageViewerRef.current.show(images);
       });
