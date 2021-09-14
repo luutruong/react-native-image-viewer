@@ -93,12 +93,12 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
     }
 
     if (Math.abs(gesture.dx) > Math.abs(gesture.dy)) {
-      this.props.onSwipe(gesture.dx > 0 ? 'left' : 'right');
+      this.props.toggleEnableScroll(true);
 
       return;
     }
 
-    this.props.onSwipe(gesture.dy > 0 ? 'down' : 'up');
+    this.props.toggleEnableScroll(false);
     this._translateXY.setValue({x: 0, y: Math.max(0, gesture.dy)});
   };
   private _onPanResponderEnd(_evt: any, gesture: PanResponderGestureState) {
@@ -135,6 +135,8 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
         useNativeDriver: true,
       }).start(() => this.props.onClose());
     } else {
+      // fixed case swipe left when jump restart
+      this.props.toggleEnableScroll(true);
       Animated.spring(this._translateXY, {
         toValue: {x: 0, y: 0},
         useNativeDriver: true,
@@ -164,7 +166,7 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
       ]).start()
       this._lastScale = 1;
       this._lastOffset = {x: 0, y: 0};
-      this.props.onImageZoom(false);
+      this.props.toggleEnableScroll(true);
     } else {
       const scale = this._getRatio() <= this._getMinimumScale() ? this._getMaximumScale() : SCREEN_WIDTH / this.state.width!;
       const oldWidth = this._getRatio() * this.state.width!;
@@ -218,7 +220,7 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
         this._lastOffset = {x, y}
       });
       this._lastScale = scale;
-      this.props.onImageZoom(true);
+      this.props.toggleEnableScroll(false);
     }
   };
 
@@ -251,7 +253,7 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
       let scale = evt.nativeEvent.scale as number;
       if (scale < this._getMinimumScale()) {
         scale = this._getMinimumScale();
-        this.props.onImageZoom(false);
+        this.props.toggleEnableScroll(true);
       } else {
         scale = Math.min(this._getMaximumScale(), scale);
       }
@@ -284,7 +286,7 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
         this._scale.setValue(Math.min(this._getMaximumScale(), scale));
       }
 
-      this.props.onImageZoom(true);
+      this.props.toggleEnableScroll(false);
     }
   };
 
