@@ -30,6 +30,7 @@ class ImageViewer extends React.Component<ImageViewerComponentProps, ImageViewer
       debug={this.props.debug}
       initialWidth={this.props.imageProps?.initialWidth}
       initialHeight={this.props.imageProps?.initialHeight}
+      renderFooter={this.props.imageProps?.renderFooter}
     />
   );
 
