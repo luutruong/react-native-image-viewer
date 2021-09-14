@@ -51,7 +51,11 @@ function Example() {
           <Text>Show Images</Text>
         </View>
       </TouchableOpacity>
-      <ImageViewer ref={imageViewerRef} />
+      <ImageViewer ref={imageViewerRef} imageProps={{
+        initialWidth: 200,
+        initialHeight: 200,
+        renderFooter: (title?: string) => (<Text>{title}</Text>)
+      }} />
     </>
   );
 }
