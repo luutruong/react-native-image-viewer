@@ -65,7 +65,7 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
   }
 
   private _onPanResponderMove(_evt: any, gesture: PanResponderGestureState) {
-    console.log('_onPanResponderMove', 'dx', gesture.dx, 'dy', gesture.dy, this._lastOffset);
+    this._debug('_onPanResponderMove', 'dx', gesture.dx, 'dy', gesture.dy, this._lastOffset);
     this._isGestureMoved = true;
 
     if (this._lastScale > this._getMinimumScale()) {
@@ -115,7 +115,7 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
       }
 
       this._lastOffset = {x, y};
-      console.log('_onPanResponderEnd', this._lastOffset, 'dx', gesture.dx);
+      this._debug('_onPanResponderEnd', this._lastOffset, 'dx', gesture.dx);
 
       this._translateXY.setOffset(this._lastOffset);
       this._translateXY.setValue({x: 0, y: 0});
@@ -141,7 +141,7 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
   private _getMinimumScale = (): number => 1.0;
 
   private _handleImageZoomInOut = (evt: HandlerStateChangeEvent) => {
-    console.log('double tab triggered', '_scaleNum', this._lastScale, evt.nativeEvent, 'ratio', this._getRatio());
+    this._debug('double tab triggered', '_scaleNum', this._lastScale, evt.nativeEvent, 'ratio', this._getRatio());
 
     if (this._lastScale > this._getMinimumScale()) {
       this._translateXY.setOffset({x: 0, y: 0});
@@ -171,7 +171,6 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
       
       let x = evt.nativeEvent.x as number;
       let y = evt.nativeEvent.y as number;
-      console.log('touched point', x, y);
 
       const horizontalCenter = (newWidth - SCREEN_WIDTH) / 2;
       const verticalCenter = (newHeight - SCREEN_HEIGHT) / 2;
@@ -242,7 +241,7 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
 
   private _onPinchHandlerStateChange = (evt: HandlerStateChangeEvent) => {
     if (evt.nativeEvent.oldState === State.ACTIVE) {
-      console.log('_onPinchHandlerStateChange', evt.nativeEvent);
+      this._debug('_onPinchHandlerStateChange', evt.nativeEvent);
 
       let scale = evt.nativeEvent.scale as number;
       if (scale < this._getMinimumScale()) {
@@ -284,6 +283,8 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
     }
   };
 
+  private _debug = (...args: any[]) => this.props.debug && console.log(...args);
+
   static getDerivedStateFromProps(nextProps: Readonly<ImageComponentProps>, prevState: Readonly<ImageComponentState>): any {
     if (prevState.width === null || prevState.height === null) {
       return {
@@ -297,7 +298,7 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
 
   componentDidMount() {
     if (!this.state.width || !this.state.height) {
-      console.log('Image', 'fetch image size with headers', this.props.image);
+      this._debug('Image', 'fetch image size with headers', this.props.image);
       RNImage.getSizeWithHeaders(
         this.props.image.url,
         this.props.image.headers || {},
@@ -344,7 +345,7 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
       <View style={styles.container}>
         <Animated.View style={backdropStyle} />
         {this.state.loading && <ActivityIndicator />}
-        <Animated.View style={moveObjStyle} {...this._panResponder.panHandlers} onLayout={(evt) => console.log('onLayout', evt.nativeEvent.layout)}>
+        <Animated.View style={moveObjStyle} {...this._panResponder.panHandlers}>
           <TapGestureHandler numberOfTaps={2} onActivated={this._handleImageZoomInOut}>
             <PinchGestureHandler 
               onGestureEvent={this._onPinchGestureEvent}

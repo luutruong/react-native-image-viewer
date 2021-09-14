@@ -1,12 +1,12 @@
 import React from 'react';
 import {Modal, Dimensions, VirtualizedList} from 'react-native';
 import Image from './Image';
-import {ImageViewerImageProps, SwipeDirection} from './types';
+import {ImageViewerImageProps, ImageViewerProps, ImageViewerState, SwipeDirection} from './types';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
-class ImageViewer extends React.Component {
-  state = {
+class ImageViewer extends React.Component<ImageViewerProps, ImageViewerState> {
+  state: ImageViewerState = {
     visible: false,
     images: [],
     scrollEnabled: true,
@@ -24,8 +24,18 @@ class ImageViewer extends React.Component {
       onClose={this._closeInternal}
       onImageZoom={(zoom: boolean) => this.setState({scrollEnabled: !zoom})}
       onSwipe={(direction: SwipeDirection) => this.setState({scrollEnabled: direction === 'left' || direction === 'right'})}
+      debug={this.props.debug}
     />
   );
+
+  private _getItemCount = () => this.state.images.length;
+  private _getItem = (data: any, index: number) => data[index];
+  private _getItemLayout = (_data: any, index: number) => ({
+    length: SCREEN_WIDTH,
+    offset: SCREEN_WIDTH * index,
+    index,
+  });
+  private _keyExtractor = (item: ImageViewerImageProps) => item.url;
 
   render() {
     return (
@@ -36,14 +46,10 @@ class ImageViewer extends React.Component {
           windowSize={2}
           data={this.state.images}
           renderItem={this._renderImage}
-          keyExtractor={(item: ImageViewerImageProps) => item.url}
-          getItemCount={() => this.state.images.length}
-          getItem={(data: any, index: number) => data[index]}
-          getItemLayout={(data: any, index: number) => ({
-            length: SCREEN_WIDTH,
-            offset: SCREEN_WIDTH * index,
-            index,
-          })}
+          keyExtractor={this._keyExtractor}
+          getItemCount={this._getItemCount}
+          getItem={this._getItem}
+          getItemLayout={this._getItemLayout}
           scrollEnabled={this.state.scrollEnabled}
           ref={this._scrollRef}
           removeClippedSubviews={true}
