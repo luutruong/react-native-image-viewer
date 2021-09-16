@@ -1,7 +1,7 @@
 {
   "name": "@luu-truong/react-native-image-viewer",
   "version": "1.0.1",
-  "description": "React Native Image Viewer",
+  "description": "Lightweight image viewer for React Native",
   "main": "dist/src/index.js",
   "license": "MIT",
   "peerDependencies": {
