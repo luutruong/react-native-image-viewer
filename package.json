@@ -9,6 +9,7 @@
   },
   "devDependencies": {
     "@types/react-native": "^0.65.0",
+    "prettier": "^2.4.1",
     "react-native": ">= 0.64.0",
     "typescript": "^4.4.3"
   },
@@ -22,7 +23,8 @@
   ],
   "scripts": {
     "build": "rm -rf dist/ && tsc",
-    "watchman": "watchman watch \"$PWD/src\" && watchman -- trigger \"$PWD/src\" dev-setup '*.tsx' -- bash \"$PWD/dev-helper.sh\""
+    "watchman": "watchman watch \"$PWD/src\" && watchman -- trigger \"$PWD/src\" dev-setup '*.tsx' -- bash \"$PWD/dev-helper.sh\"",
+    "prettier": "node node_modules/.bin/prettier --write ./src"
   },
   "repository": {
     "type": "git",
