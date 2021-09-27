@@ -11,9 +11,16 @@ import {
   View,
   PanResponderGestureState,
   Text,
-  SafeAreaView
+  SafeAreaView,
 } from 'react-native';
-import {HandlerStateChangeEvent, TapGestureHandler, PinchGestureHandler, State, GestureEvent, TouchableWithoutFeedback} from 'react-native-gesture-handler';
+import {
+  HandlerStateChangeEvent,
+  TapGestureHandler,
+  PinchGestureHandler,
+  State,
+  GestureEvent,
+  TouchableWithoutFeedback,
+} from 'react-native-gesture-handler';
 import {ImageComponentOptionalProps, ImageComponentProps, ImageComponentState} from './types';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -35,7 +42,7 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
   private _lastOffset: {x: number; y: number} = {x: 0, y: 0};
 
   private _lastScale: number = 1;
-  
+
   private _isGestureMoved: boolean = false;
 
   constructor(props: ImageComponentProps) {
@@ -98,7 +105,7 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
 
     this.props.toggleEnableScroll(false);
     this._translateXY.setValue({x: 0, y: Math.max(0, gesture.dy)});
-  };
+  }
   private _onPanResponderEnd(_evt: any, gesture: PanResponderGestureState) {
     if (!this._isGestureMoved) {
       return;
@@ -140,7 +147,7 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
         useNativeDriver: true,
       }).start();
     }
-  };
+  }
 
   private _getMaximumScale = (): number => 2.5;
   private _getMinimumScale = (): number => 1.0;
@@ -161,26 +168,27 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
           useNativeDriver: true,
           duration: 250,
         }),
-      ]).start()
+      ]).start();
       this._lastScale = 1;
       this._lastOffset = {x: 0, y: 0};
       this.props.toggleEnableScroll(true);
     } else {
-      const scale = this._getRatio() <= this._getMinimumScale() ? this._getMaximumScale() : SCREEN_WIDTH / this.state.width!;
+      const scale =
+        this._getRatio() <= this._getMinimumScale() ? this._getMaximumScale() : SCREEN_WIDTH / this.state.width!;
       const oldWidth = this._getRatio() * this.state.width!;
       const oldHeight = this._getRatio() * this.state.height!;
 
       const newWidth = scale * oldWidth;
       const newHeight = scale * oldHeight;
-      const padding = 50
-      
+      const padding = 50;
+
       let x = evt.nativeEvent.x as number;
       let y = evt.nativeEvent.y as number;
 
       const horizontalCenter = (newWidth - SCREEN_WIDTH) / 2;
       const verticalCenter = (newHeight - SCREEN_HEIGHT) / 2;
       if (verticalCenter <= SCREEN_HEIGHT) {
-        if (x >= (SCREEN_WIDTH / 2)) {
+        if (x >= SCREEN_WIDTH / 2) {
           x = SCREEN_WIDTH / 2 - x - padding * scale;
           if (Math.abs(x) >= horizontalCenter) {
             x = -1 * horizontalCenter;
@@ -195,7 +203,7 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
         y = 0;
       } else {
         x = 0;
-        if (y >= (SCREEN_HEIGHT / 2)) {
+        if (y >= SCREEN_HEIGHT / 2) {
           // touched bottom
           y = SCREEN_HEIGHT / 2 - y + padding * scale;
         } else {
@@ -215,19 +223,20 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
           duration: 250,
         }),
       ]).start(() => {
-        this._lastOffset = {x, y}
+        this._lastOffset = {x, y};
       });
       this._lastScale = scale;
       this.props.toggleEnableScroll(false);
     }
   };
 
-  private _getRatio = () => this.state.width 
-    ? this.state.width >= SCREEN_WIDTH 
-      ? SCREEN_WIDTH / this.state.width 
-      : this.state.width / SCREEN_WIDTH
-    : 0;
-  private _computeMoveBounds = (): {x: number, y: number} => {
+  private _getRatio = () =>
+    this.state.width
+      ? this.state.width >= SCREEN_WIDTH
+        ? SCREEN_WIDTH / this.state.width
+        : this.state.width / SCREEN_WIDTH
+      : 0;
+  private _computeMoveBounds = (): {x: number; y: number} => {
     const ratio = this._getRatio();
     if (this._lastScale <= 1 || ratio === 0) {
       return {x: 0, y: 0};
@@ -236,11 +245,10 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
     const imageWidth = this.state.width! * ratio * this._lastScale;
     const imageHeight = this.state.height! * ratio * this._lastScale;
 
-    const bounds = (width: number, maxWidth: number) =>
-      width >= maxWidth ? (width - maxWidth) / 2 : 0;
-    
+    const bounds = (width: number, maxWidth: number) => (width >= maxWidth ? (width - maxWidth) / 2 : 0);
+
     return {x: bounds(imageWidth, SCREEN_WIDTH), y: bounds(imageHeight, SCREEN_HEIGHT)};
-  }
+  };
 
   private _onImageLoadEnd = () => this.setState({loading: false});
 
@@ -270,8 +278,8 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
           toValue: {x: 0, y: 0},
           duration: 250,
           useNativeDriver: true,
-        })
-      ]).start()
+        }),
+      ]).start();
     }
   };
   private _onPinchGestureEvent = (evt: GestureEvent) => {
@@ -298,11 +306,11 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
           {
             translateY: this._translateXY.y.interpolate({
               inputRange: [0, 100],
-              outputRange: [0, -100]
-            })
-          }
-        ]
-      }
+              outputRange: [0, -100],
+            }),
+          },
+        ],
+      },
     ];
 
     return (
@@ -325,7 +333,7 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
       }
       innerComponent = renderFooter(this.props.title);
     } else {
-      innerComponent = (<Text style={styles.defaultText}>{this.props.title}</Text>);
+      innerComponent = <Text style={styles.defaultText}>{this.props.title}</Text>;
     }
 
     const footerAnim = [
@@ -335,21 +343,20 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
           {
             translateY: this._translateXY.y.interpolate({
               inputRange: [0, 100],
-              outputRange: [0, 100]
-            })
-          }
-        ]
-      }
+              outputRange: [0, 100],
+            }),
+          },
+        ],
+      },
     ];
 
-    return (
-      <Animated.View style={footerAnim}>
-        {innerComponent}
-      </Animated.View>
-    );
+    return <Animated.View style={footerAnim}>{innerComponent}</Animated.View>;
   };
 
-  static getDerivedStateFromProps(nextProps: Readonly<ImageComponentProps>, prevState: Readonly<ImageComponentState>): any {
+  static getDerivedStateFromProps(
+    nextProps: Readonly<ImageComponentProps>,
+    prevState: Readonly<ImageComponentState>
+  ): any {
     if (prevState.width === null || prevState.height === null) {
       const resolveSource = RNImage.resolveAssetSource(nextProps.source);
       return {
@@ -371,7 +378,7 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
         resolve.headers ? resolve.headers : {},
         (width: number, height: number) => {
           this.setState({width, height});
-        },
+        }
       );
     }
   }
@@ -383,8 +390,8 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
         ...this._translateXY.getTranslateTransform(),
         {
           scale: this._scale,
-        }
-      ]
+        },
+      ],
     };
     const computeImageStyle = {
       width: this.props.initialWidth,
@@ -395,7 +402,7 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
       Object.assign(computeImageStyle, {
         width: Math.floor(ratio * this.state.width),
         height: Math.floor(ratio * this.state.height),
-      })
+      });
     }
     const backdropStyle: any = [
       styles.backdrop,
@@ -404,23 +411,20 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
         opacity: this._translateXY.y.interpolate({
           inputRange: [0, SCREEN_HEIGHT],
           outputRange: [1, 0],
-        })
-      }
-    ]
+        }),
+      },
+    ];
 
     return (
       <View style={styles.container}>
         <Animated.View style={backdropStyle} />
         <Animated.View style={moveObjStyle} {...this._panResponder.panHandlers}>
           <TapGestureHandler numberOfTaps={2} onActivated={this._handleImageZoomInOut}>
-            <PinchGestureHandler 
+            <PinchGestureHandler
               onGestureEvent={this._onPinchGestureEvent}
-              onHandlerStateChange={this._onPinchHandlerStateChange}>
-                <RNImage
-                  source={this.props.source}
-                  style={computeImageStyle}
-                  onLoadEnd={this._onImageLoadEnd}
-                />
+              onHandlerStateChange={this._onPinchHandlerStateChange}
+            >
+              <RNImage source={this.props.source} style={computeImageStyle} onLoadEnd={this._onImageLoadEnd} />
             </PinchGestureHandler>
           </TapGestureHandler>
         </Animated.View>

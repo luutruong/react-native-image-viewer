@@ -19,7 +19,7 @@ class ImageViewer extends React.Component<ImageViewerComponentProps, ImageViewer
   }
 
   private _closeInternal = () => this.setState({visible: false});
-  private _renderImage = (info: {item: ImageViewerImageProps, index: number}) => (
+  private _renderImage = (info: {item: ImageViewerImageProps; index: number}) => (
     <Image
       source={info.item.source}
       title={info.item.title}
@@ -67,7 +67,7 @@ class ImageViewer extends React.Component<ImageViewerComponentProps, ImageViewer
           initialScrollIndex={this.state.startIndex}
         />
       </Modal>
-    )
+    );
   }
 }
 

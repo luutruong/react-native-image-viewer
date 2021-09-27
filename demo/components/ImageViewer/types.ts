@@ -1,9 +1,9 @@
-import { ImageRequireSource, ImageURISource } from "react-native";
+import {ImageRequireSource, ImageURISource} from 'react-native';
 
 export type ImageViewerImageProps = {
   source: ImageURISource | ImageRequireSource;
   title?: string;
-}
+};
 export type SwipeDirection = 'up' | 'down' | 'left' | 'right';
 
 // Image.tsx
@@ -25,7 +25,6 @@ export interface ImageComponentOptionalProps {
   initialHeight?: number;
   // render footer
   renderFooter?: (title?: string) => JSX.Element | null;
-  onLongPress?: (imageIndex: number) => void;
 }
 
 export interface ImageComponentState {
