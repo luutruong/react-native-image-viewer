@@ -33,14 +33,18 @@ function Example() {
   function showImagesViewer() {
     imageViewerRef.ref.show([
       {
-        url: '...',
+        source: {
+          uri: 'https://...',
+          headers: {
+            'X-Custom-Header': 'foo',
+          },
+          width: 1200,
+          height: 600
+        },
         title: 'blah blah'
       },
       {
-        url: '...',
-        width: 1200,
-        height: 600,
-        // see Image Object below to see available options
+        source: require('image.png'),
       }
     ]);
   }
@@ -64,16 +68,6 @@ function Example() {
 ```
 
 ## Documentation
-
-Image Object:
-
-| Name | Type | Required | Description |
-| ---- | ---- | -------- | ----------- |
-| url  | string | yes | URL to image |
-| width | number | no | Image width |
-| height | number | no | Image height |
-| title | string | no | Image title |
-| headers | object | no | Headers to fetch with image |
 
 Image Viewer Component Props:
 
