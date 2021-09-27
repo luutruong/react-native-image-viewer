@@ -13,13 +13,11 @@ import {
   Text,
   SafeAreaView
 } from 'react-native';
-import {HandlerStateChangeEvent, TapGestureHandler, PinchGestureHandler, State, GestureEvent} from 'react-native-gesture-handler';
+import {HandlerStateChangeEvent, TapGestureHandler, PinchGestureHandler, State, GestureEvent, TouchableWithoutFeedback} from 'react-native-gesture-handler';
 import {ImageComponentOptionalProps, ImageComponentProps, ImageComponentState} from './types';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
-
-const ImageAnimated = Animated.createAnimatedComponent(RNImage);
 
 class Image extends React.Component<ImageComponentProps, ImageComponentState> {
   static defaultProps: ImageComponentOptionalProps = {
@@ -315,8 +313,8 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
   };
 
   private _renderFooter = () => {
-    const {renderFooter, image} = this.props;
-    if (typeof renderFooter !== 'function' && !image.title) {
+    const {renderFooter} = this.props;
+    if (typeof renderFooter !== 'function' && !this.props.title) {
       return null;
     }
 
@@ -325,9 +323,9 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
       if (typeof renderFooter !== 'function') {
         throw new Error('`renderFooter` must be a function');
       }
-      innerComponent = renderFooter(image.title);
+      innerComponent = renderFooter(this.props.title);
     } else {
-      innerComponent = (<Text style={styles.defaultText}>{image.title}</Text>);
+      innerComponent = (<Text style={styles.defaultText}>{this.props.title}</Text>);
     }
 
     const footerAnim = [
@@ -353,9 +351,10 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
 
   static getDerivedStateFromProps(nextProps: Readonly<ImageComponentProps>, prevState: Readonly<ImageComponentState>): any {
     if (prevState.width === null || prevState.height === null) {
+      const resolveSource = RNImage.resolveAssetSource(nextProps.source);
       return {
-        width: nextProps.image.width || 0,
-        height: nextProps.image.height || 0,
+        width: resolveSource.width || 0,
+        height: resolveSource.height || 0,
       };
     }
 
@@ -364,10 +363,12 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
 
   componentDidMount() {
     if (!this.state.width || !this.state.height) {
-      this._debug('Image', 'fetch image size with headers', this.props.image);
+      this._debug('Image', 'fetch image size with headers', this.props.source);
+      const resolve = RNImage.resolveAssetSource(this.props.source) as any;
+
       RNImage.getSizeWithHeaders(
-        this.props.image.url,
-        this.props.image.headers || {},
+        resolve.uri,
+        resolve.headers ? resolve.headers : {},
         (width: number, height: number) => {
           this.setState({width, height});
         },
@@ -410,22 +411,22 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
     return (
       <View style={styles.container}>
         <Animated.View style={backdropStyle} />
-        {this.state.loading && <ActivityIndicator />}
         <Animated.View style={moveObjStyle} {...this._panResponder.panHandlers}>
           <TapGestureHandler numberOfTaps={2} onActivated={this._handleImageZoomInOut}>
             <PinchGestureHandler 
               onGestureEvent={this._onPinchGestureEvent}
               onHandlerStateChange={this._onPinchHandlerStateChange}>
-              <ImageAnimated
-                source={{uri: this.props.image.url, headers: this.props.image.headers}}
-                style={computeImageStyle}
-                onLoadEnd={this._onImageLoadEnd}
-              />
+                <RNImage
+                  source={this.props.source}
+                  style={computeImageStyle}
+                  onLoadEnd={this._onImageLoadEnd}
+                />
             </PinchGestureHandler>
           </TapGestureHandler>
         </Animated.View>
         <SafeAreaView style={styles.safeAreaContainer} pointerEvents="none">
           {this._renderHeader()}
+          {this.state.loading && <ActivityIndicator color={'#fff'} />}
           {this._renderFooter()}
         </SafeAreaView>
       </View>

@@ -1,15 +1,15 @@
+import { ImageRequireSource, ImageURISource } from "react-native";
+
 export type ImageViewerImageProps = {
-  url: string;
+  source: ImageURISource | ImageRequireSource;
   title?: string;
-  headers?: {[key: string]: any};
-  width?: number;
-  height?: number;
 }
 export type SwipeDirection = 'up' | 'down' | 'left' | 'right';
 
 // Image.tsx
 export interface ImageComponentProps extends ImageComponentOptionalProps {
-  image: ImageViewerImageProps;
+  source: ImageURISource | ImageRequireSource;
+  title?: string;
   onClose: () => void;
   toggleEnableScroll: (enabled: boolean) => void;
 
@@ -25,6 +25,7 @@ export interface ImageComponentOptionalProps {
   initialHeight?: number;
   // render footer
   renderFooter?: (title?: string) => JSX.Element | null;
+  onLongPress?: (imageIndex: number) => void;
 }
 
 export interface ImageComponentState {
@@ -42,4 +43,5 @@ export interface ImageViewerComponentState {
   visible: boolean;
   images: ImageViewerImageProps[];
   scrollEnabled: boolean;
+  startIndex: number;
 }

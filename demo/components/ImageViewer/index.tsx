@@ -10,17 +10,19 @@ class ImageViewer extends React.Component<ImageViewerComponentProps, ImageViewer
     visible: false,
     images: [],
     scrollEnabled: true,
+    startIndex: 0,
   };
   private _scrollRef: {current: VirtualizedList<any> | null} = React.createRef();
 
   public show(images: ImageViewerImageProps[], startIndex: number = 0) {
-    this.setState({images, visible: true});
+    this.setState({images, visible: true, startIndex});
   }
 
   private _closeInternal = () => this.setState({visible: false});
   private _renderImage = (info: {item: ImageViewerImageProps, index: number}) => (
     <Image
-      image={info.item}
+      source={info.item.source}
+      title={info.item.title}
       onClose={this._closeInternal}
       toggleEnableScroll={(enabled: boolean) => this.setState({scrollEnabled: enabled})}
       imageIndex={info.index}
@@ -41,7 +43,7 @@ class ImageViewer extends React.Component<ImageViewerComponentProps, ImageViewer
     index,
   });
 
-  private _keyExtractor = (item: ImageViewerImageProps) => item.url;
+  private _keyExtractor = (item: ImageViewerImageProps, index: number) => `${index}`;
 
   render() {
     return (
@@ -62,6 +64,7 @@ class ImageViewer extends React.Component<ImageViewerComponentProps, ImageViewer
           maxToRenderPerBatch={2}
           initialNumToRender={2}
           pagingEnabled
+          initialScrollIndex={this.state.startIndex}
         />
       </Modal>
     )

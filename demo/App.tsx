@@ -37,12 +37,24 @@ const App: () => Node = () => {
       .then((res: any) => res.data)
       .then((res: any) => {
         const images = res.map((item: any) => ({
-          width: item.width,
-          height: item.height,
-          url: item.download_url,
+          // width: item.width,
+          // height: item.height,
+          // url: item.download_url,
           title: item.author,
+          source: {
+            uri: item.download_url,
+            headers: {
+              'X-Test': 'foo',
+            },
+            // width: item.width,
+            // height: item.height,
+          },
         }));
-        imageViewerRef.current.show(images);
+
+        imageViewerRef.current.show(
+          images,
+          Math.floor(Math.random() * images.length - 1),
+        );
       });
   }
 
