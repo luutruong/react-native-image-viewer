@@ -417,7 +417,7 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
 
     return (
       <View style={styles.container}>
-        <Animated.View style={backdropStyle} />
+        <Animated.View style={backdropStyle} {...this._panResponder.panHandlers} />
         <Animated.View style={moveObjStyle} {...this._panResponder.panHandlers}>
           <TapGestureHandler numberOfTaps={2} onActivated={this._handleImageZoomInOut}>
             <PinchGestureHandler
