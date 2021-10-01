@@ -56,7 +56,12 @@ class ImageViewer extends React.Component<ImageViewerComponentProps, ImageViewer
     });
 
     return (
-      <Modal visible={this.props.visible} transparent animationType={this.props.animationType} onRequestClose={this._closeInternal}>
+      <Modal
+        visible={this.props.visible}
+        transparent
+        animationType={this.props.animationType}
+        onRequestClose={this._closeInternal}
+      >
         <VirtualizedList
           horizontal
           showsHorizontalScrollIndicator={false}
