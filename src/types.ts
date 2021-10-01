@@ -14,7 +14,7 @@ export interface ImageComponentProps extends ImageComponentOptionalProps {
   toggleEnableScroll: (enabled: boolean) => void;
 
   imageIndex: number;
-  imageTotal: number;
+  imagesTotal: number;
 }
 export interface ImageComponentOptionalProps {
   // optional
@@ -37,6 +37,7 @@ export interface ImageComponentState {
 export interface ImageViewerComponentProps {
   debug?: boolean;
   imageProps?: ImageComponentOptionalProps;
+  animationType?: 'slide' | 'fade' | 'none';
 }
 export interface ImageViewerComponentState {
   visible: boolean;

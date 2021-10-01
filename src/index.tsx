@@ -1,5 +1,5 @@
 import React from 'react';
-import {Modal, Dimensions, VirtualizedList} from 'react-native';
+import {Modal, Dimensions, VirtualizedList, View} from 'react-native';
 import Image from './Image';
 import {ImageViewerImageProps, ImageViewerComponentProps, ImageViewerComponentState, SwipeDirection} from './types';
 
@@ -12,6 +12,10 @@ class ImageViewer extends React.Component<ImageViewerComponentProps, ImageViewer
     scrollEnabled: true,
     startIndex: 0,
   };
+  static defaultProps = {
+    animationType: 'none',
+  };
+
   private _scrollRef: {current: VirtualizedList<any> | null} = React.createRef();
 
   public show(images: ImageViewerImageProps[], startIndex: number = 0) {
@@ -26,7 +30,7 @@ class ImageViewer extends React.Component<ImageViewerComponentProps, ImageViewer
       onClose={this._closeInternal}
       toggleEnableScroll={(enabled: boolean) => this.setState({scrollEnabled: enabled})}
       imageIndex={info.index}
-      imageTotal={this._getItemCount()}
+      imagesTotal={this._getItemCount()}
       // extendable props
       debug={this.props.debug}
       initialWidth={this.props.imageProps?.initialWidth}
@@ -43,11 +47,11 @@ class ImageViewer extends React.Component<ImageViewerComponentProps, ImageViewer
     index,
   });
 
-  private _keyExtractor = (item: ImageViewerImageProps, index: number) => `${index}`;
+  private _keyExtractor = (_item: ImageViewerImageProps, index: number) => `${index}`
 
   render() {
     return (
-      <Modal visible={this.state.visible} transparent animationType="none" onRequestClose={this._closeInternal}>
+      <Modal visible={this.state.visible} transparent animationType={this.props.animationType} onRequestClose={this._closeInternal}>
         <VirtualizedList
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -65,6 +69,7 @@ class ImageViewer extends React.Component<ImageViewerComponentProps, ImageViewer
           initialNumToRender={2}
           pagingEnabled
           initialScrollIndex={this.state.startIndex}
+          listKey={'RNImageViewer'}
         />
       </Modal>
     );
