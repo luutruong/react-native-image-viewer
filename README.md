@@ -72,7 +72,7 @@ Image Viewer Component Props:
 | images | Array | yes | |
 | initialIndex | number | no | Show image index at initialize |
 | onClose | () => void | yes | Callback when close image viewer |
-| animationType | `slide | fade | none` | no | |
+| animationType | string | no | |
 
 Image Component Props:
 
