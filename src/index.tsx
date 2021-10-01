@@ -7,28 +7,21 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 
 class ImageViewer extends React.Component<ImageViewerComponentProps, ImageViewerComponentState> {
   state: ImageViewerComponentState = {
-    visible: false,
-    images: [],
     scrollEnabled: true,
-    startIndex: 0,
   };
   static defaultProps = {
     animationType: 'none',
   };
 
-  private _scrollRef: {current: VirtualizedList<any> | null} = React.createRef();
+  private _scrollRef: {current: any} = React.createRef();
 
-  public show(images: ImageViewerImageProps[], startIndex: number = 0) {
-    this.setState({images, visible: true, startIndex});
-  }
-
-  private _closeInternal = () => this.setState({visible: false});
+  private _closeInternal = () => this.props.onClose();
   private _renderImage = (info: {item: ImageViewerImageProps; index: number}) => (
     <Image
       source={info.item.source}
       title={info.item.title}
       onClose={this._closeInternal}
-      toggleEnableScroll={(enabled: boolean) => this.setState({scrollEnabled: enabled})}
+      toggleEnableScroll={this._handleToggleScrollState}
       imageIndex={info.index}
       imagesTotal={this._getItemCount()}
       // extendable props
@@ -39,7 +32,11 @@ class ImageViewer extends React.Component<ImageViewerComponentProps, ImageViewer
     />
   );
 
-  private _getItemCount = () => this.state.images.length;
+  private _handleToggleScrollState = (enabled: boolean) => {
+    this.setState({scrollEnabled: enabled});
+  };
+
+  private _getItemCount = () => this.props.images.length;
   private _getItem = (data: any, index: number) => data[index];
   private _getItemLayout = (_data: any, index: number) => ({
     length: SCREEN_WIDTH,
@@ -47,29 +44,30 @@ class ImageViewer extends React.Component<ImageViewerComponentProps, ImageViewer
     index,
   });
 
-  private _keyExtractor = (_item: ImageViewerImageProps, index: number) => `${index}`
+  private _keyExtractor = (_item: ImageViewerImageProps, index: number) => `${index}`;
 
   render() {
     return (
-      <Modal visible={this.state.visible} transparent animationType={this.props.animationType} onRequestClose={this._closeInternal}>
+      <Modal visible={this.props.visible} transparent animationType={this.props.animationType} onRequestClose={this._closeInternal}>
         <VirtualizedList
           horizontal
           showsHorizontalScrollIndicator={false}
           windowSize={2}
-          data={this.state.images}
+          data={this.props.images}
           renderItem={this._renderImage}
           keyExtractor={this._keyExtractor}
           getItemCount={this._getItemCount}
           getItem={this._getItem}
           getItemLayout={this._getItemLayout}
-          scrollEnabled={this.state.scrollEnabled}
+          scrollEnabled
           ref={this._scrollRef}
           removeClippedSubviews={true}
           maxToRenderPerBatch={2}
           initialNumToRender={2}
           pagingEnabled
-          initialScrollIndex={this.state.startIndex}
+          initialScrollIndex={this.props.initialIndex !== undefined ? this.props.initialIndex : 0}
           listKey={'RNImageViewer'}
+          disableScrollViewPanResponder={!this.state.scrollEnabled}
         />
       </Modal>
     );

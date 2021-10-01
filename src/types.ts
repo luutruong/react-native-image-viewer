@@ -38,10 +38,11 @@ export interface ImageViewerComponentProps {
   debug?: boolean;
   imageProps?: ImageComponentOptionalProps;
   animationType?: 'slide' | 'fade' | 'none';
+  images: ImageViewerImageProps[];
+  visible: boolean;
+  initialIndex?: number;
+  onClose: () => void;
 }
 export interface ImageViewerComponentState {
-  visible: boolean;
-  images: ImageViewerImageProps[];
   scrollEnabled: boolean;
-  startIndex: number;
 }

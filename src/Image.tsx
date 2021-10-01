@@ -62,7 +62,11 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
 
     this._panResponder = PanResponder.create({
       onStartShouldSetPanResponder: onShouldSetPanResponder,
-      onMoveShouldSetPanResponder: onShouldSetPanResponder,
+      onStartShouldSetPanResponderCapture: () => true,
+
+      onMoveShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponderCapture: () => true,
+
       onPanResponderTerminate: onPanEnd,
       onPanResponderRelease: onPanEnd,
       onPanResponderMove: onPanMove,
@@ -99,7 +103,7 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
     if (Math.abs(gesture.dx) > Math.abs(gesture.dy)) {
       this.props.toggleEnableScroll(true);
 
-      return;
+      return false;
     }
 
     this.props.toggleEnableScroll(false);
