@@ -19,7 +19,6 @@ import {
   PinchGestureHandler,
   State,
   GestureEvent,
-  TouchableWithoutFeedback,
 } from 'react-native-gesture-handler';
 import {ImageComponentOptionalProps, ImageComponentProps, ImageComponentState} from './types';
 
@@ -63,7 +62,11 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
 
     this._panResponder = PanResponder.create({
       onStartShouldSetPanResponder: onShouldSetPanResponder,
-      onMoveShouldSetPanResponder: onShouldSetPanResponder,
+      onStartShouldSetPanResponderCapture: () => true,
+
+      onMoveShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponderCapture: () => true,
+
       onPanResponderTerminate: onPanEnd,
       onPanResponderRelease: onPanEnd,
       onPanResponderMove: onPanMove,
@@ -100,7 +103,7 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
     if (Math.abs(gesture.dx) > Math.abs(gesture.dy)) {
       this.props.toggleEnableScroll(true);
 
-      return;
+      return false;
     }
 
     this.props.toggleEnableScroll(false);
@@ -315,7 +318,11 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
 
     return (
       <Animated.View style={headerAnim}>
-        <Text style={{color: '#fff'}}>{`${this.props.imageIndex + 1}/${this.props.imageTotal}`}</Text>
+        {this.props.imagesTotal > 1 && (
+          <View style={styles.headerCount}>
+            <Text style={styles.defaultText}>{`${this.props.imageIndex + 1}/${this.props.imagesTotal}`}</Text>
+          </View>
+        )}
       </Animated.View>
     );
   };
@@ -462,6 +469,11 @@ const styles = StyleSheet.create({
   },
   defaultText: {
     color: '#fff',
+  },
+  headerCount: {
+    backgroundColor: '#131313',
+    padding: 10,
+    borderRadius: 10,
   },
 });
 

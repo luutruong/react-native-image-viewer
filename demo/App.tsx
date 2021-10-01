@@ -12,89 +12,87 @@ import {
   SafeAreaView,
   StatusBar,
   StyleSheet,
-  Text,
   useColorScheme,
   View,
   TouchableOpacity,
+  Image,
+  Dimensions,
+  ScrollView,
 } from 'react-native';
 
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import axios from 'axios';
 import ImageViewer from './components/ImageViewer';
 
+const WIDTH = Dimensions.get('window').width;
+
 const App: () => Node = () => {
   const isDarkMode = useColorScheme() === 'dark';
-  const imageViewerRef = React.createRef();
+  const [images, setImages] = React.useState([]);
+  const [visible, setVisible] = React.useState(false);
+  const [showIndex, setShowIndex] = React.useState(0);
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
     flex: 1,
   };
 
-  function showImageViewer() {
+  React.useEffect(() => {
     axios
       .get('https://picsum.photos/v2/list?limit=20')
       .then((res: any) => res.data)
       .then((res: any) => {
-        const images = res.map((item: any) => ({
-          // width: item.width,
-          // height: item.height,
-          // url: item.download_url,
+        const imagesMap = res.map((item: any) => ({
           title: item.author,
           source: {
             uri: item.download_url,
             headers: {
               'X-Test': 'foo',
             },
-            // width: item.width,
-            // height: item.height,
+            width: item.width,
+            height: item.height,
           },
         }));
-
-        imageViewerRef.current.show(
-          images,
-          Math.floor(Math.random() * images.length - 1),
-        );
+        setImages(imagesMap);
       });
+  }, []);
+
+  function onImagePress(index: number) {
+    setShowIndex(index);
+    setVisible(true);
   }
 
   return (
     <SafeAreaView style={backgroundStyle}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <View style={styles.container}>
-        <TouchableOpacity
-          onPress={() => showImageViewer()}
-          hitSlop={{top: 20, left: 20, right: 20, bottom: 20}}>
-          <View style={styles.button}>
-            <Text style={styles.buttonText}>Show</Text>
-          </View>
-        </TouchableOpacity>
-      </View>
-      <ImageViewer ref={imageViewerRef} debug />
+      <ScrollView>
+        {images.map((image, index) => (
+          <TouchableOpacity
+            activeOpacity={0.8}
+            key={index}
+            onPress={() => onImagePress(index)}>
+            <View>
+              <Image source={image.source} style={styles.image} />
+            </View>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+      <ImageViewer
+        images={images}
+        initialIndex={showIndex}
+        visible={visible}
+        onClose={() => setVisible(false)}
+        animationType="slide"
+        debug
+      />
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: Colors.lighter,
-  },
-  button: {
-    paddingHorizontal: 50,
-    paddingVertical: 15,
-    borderWidth: 1,
-    borderColor: '#2985c6',
-    borderRadius: 10,
-    backgroundColor: '#2577b1',
-  },
-  buttonText: {
-    fontSize: 15,
-    textTransform: 'uppercase',
-    fontWeight: '600',
-    color: '#fff',
+  image: {
+    width: WIDTH,
+    height: 360,
   },
 });
 
