@@ -28,35 +28,28 @@ Usage:
 import ImageViewer from '@luu-truong/react-native-image-viewer';
 
 function Example() {
-  const imageViewerRef = React.createRef();
+  const [visible, setVisible] = React.useState(false);
   
-  function showImagesViewer() {
-    imageViewerRef.ref.show([
-      {
-        source: {
-          uri: 'https://...',
-          headers: {
-            'X-Custom-Header': 'foo',
-          },
-          width: 1200,
-          height: 600
+  const images = [
+    {
+      source: {
+        uri: 'https://...',
+        headers: {
+          'X-Custom-Header': 'foo',
         },
-        title: 'blah blah'
+        width: 1200,
+        height: 600
       },
-      {
-        source: require('image.png'),
-      }
-    ]);
-  }
+      title: 'blah blah'
+    },
+    {
+      source: require('image.png'),
+    }
+  ];
   
   return (
     <>
-      <TouchableOpacity onPress={() => showImagesViewer()}>
-        <View>
-          <Text>Show Images</Text>
-        </View>
-      </TouchableOpacity>
-      <ImageViewer ref={imageViewerRef} imageProps={{
+      <ImageViewer images={images} visible={visible} onClose={() => setVisible(false)} imageProps={{
         initialWidth: 200,
         initialHeight: 200,
         renderFooter: (title?: string) => (<Text>{title}</Text>)
@@ -75,6 +68,11 @@ Image Viewer Component Props:
 | --- | --- | --- | --- |
 | debug | boolean | no | Print debug message. Default: false |
 | imageProps | object | no | Props passed to Image component. See Image Component Props |
+| visible | boolean | yes | |
+| images | Array | yes | |
+| initialIndex | number | no | Show image index at initialize |
+| onClose | () => void | yes | Callback when close image viewer |
+| animationType | `slide | fade | none` | no | |
 
 Image Component Props:
 
