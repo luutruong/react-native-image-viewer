@@ -1,7 +1,7 @@
 import React from 'react';
-import {Modal, Dimensions, VirtualizedList, View} from 'react-native';
+import {Modal, Dimensions, VirtualizedList, Platform} from 'react-native';
 import Image from './Image';
-import {ImageViewerImageProps, ImageViewerComponentProps, ImageViewerComponentState, SwipeDirection} from './types';
+import {ImageViewerImageProps, ImageViewerComponentProps, ImageViewerComponentState} from './types';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -47,6 +47,14 @@ class ImageViewer extends React.Component<ImageViewerComponentProps, ImageViewer
   private _keyExtractor = (_item: ImageViewerImageProps, index: number) => `${index}`;
 
   render() {
+    const platformProps = Platform.select({
+      ios: {
+        bounces: false,
+        directionalLockEnabled: true,
+      },
+      android: {},
+    });
+
     return (
       <Modal visible={this.props.visible} transparent animationType={this.props.animationType} onRequestClose={this._closeInternal}>
         <VirtualizedList
@@ -64,10 +72,12 @@ class ImageViewer extends React.Component<ImageViewerComponentProps, ImageViewer
           removeClippedSubviews={true}
           maxToRenderPerBatch={2}
           initialNumToRender={2}
+          updateCellsBatchingPeriod={100}
           pagingEnabled
-          initialScrollIndex={this.props.initialIndex !== undefined ? this.props.initialIndex : 0}
+          initialScrollIndex={this.props.initialIndex}
           listKey={'RNImageViewer'}
           disableScrollViewPanResponder={!this.state.scrollEnabled}
+          {...platformProps}
         />
       </Modal>
     );
