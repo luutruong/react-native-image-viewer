@@ -31,10 +31,9 @@
     "url": "git+https://github.com/luutruong/react-native-image-viewer.git"
   },
   "keywords": [
-    "react",
-    "native",
-    "image",
-    "viewer"
+    "react native",
+    "image viewer",
+    "image gallery"
   ],
   "author": "Truong Luu",
   "bugs": {
