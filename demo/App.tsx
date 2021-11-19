@@ -23,6 +23,7 @@ import {
 import {Colors} from 'react-native/Libraries/NewAppScreen';
 import axios from 'axios';
 import ImageViewer from './components/ImageViewer';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
 
 const WIDTH = Dimensions.get('window').width;
 

@@ -12,6 +12,7 @@ export interface ImageComponentProps extends ImageComponentOptionalProps {
   title?: string;
   onClose: () => void;
   toggleEnableScroll: (enabled: boolean) => void;
+  onZoomStateChange: (isZooming: boolean) => void;
 
   imageIndex: number;
   imagesTotal: number;
@@ -31,6 +32,7 @@ export interface ImageComponentState {
   width: number | null;
   height: number | null;
   loading: boolean;
+  isZooming: boolean;
 }
 
 // index.tsx
@@ -45,4 +47,5 @@ export interface ImageViewerComponentProps {
 }
 export interface ImageViewerComponentState {
   scrollEnabled: boolean;
+  isZooming: boolean;
 }
