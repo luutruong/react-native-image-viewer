@@ -1,5 +1,5 @@
 import React from 'react';
-import {Modal, Dimensions, VirtualizedList, Platform} from 'react-native';
+import {Modal, Dimensions, VirtualizedList, Platform, VirtualizedListProps} from 'react-native';
 import Image from './Image';
 import {ImageViewerImageProps, ImageViewerComponentProps, ImageViewerComponentState} from './types';
 
@@ -14,7 +14,7 @@ class ImageViewer extends React.Component<ImageViewerComponentProps, ImageViewer
     animationType: 'none',
   };
 
-  private _scrollRef: {current: any} = React.createRef();
+  private _scrollRef: {current: any} = React.createRef<VirtualizedList<any>>();
 
   private _closeInternal = () => this.props.onClose();
   private _renderImage = (info: {item: ImageViewerImageProps; index: number}) => (
@@ -22,7 +22,6 @@ class ImageViewer extends React.Component<ImageViewerComponentProps, ImageViewer
       source={info.item.source}
       title={info.item.title}
       onClose={this._closeInternal}
-      toggleEnableScroll={this._handleToggleScrollState}
       onZoomStateChange={this._onZoomStateChange}
       imageIndex={info.index}
       imagesTotal={this._getItemCount()}
@@ -34,9 +33,10 @@ class ImageViewer extends React.Component<ImageViewerComponentProps, ImageViewer
     />
   );
 
-  private _onZoomStateChange = (isZooming: boolean) => this.setState({isZooming});
-  private _handleToggleScrollState = (enabled: boolean) => {
-    this.setState({scrollEnabled: enabled});
+  private _onZoomStateChange = (isZooming: boolean) => {
+    this._scrollRef.current.getScrollRef().setNativeProps({
+      scrollEnabled: !isZooming,
+    });
   };
 
   private _getItemCount = () => this.props.images.length;
@@ -75,7 +75,7 @@ class ImageViewer extends React.Component<ImageViewerComponentProps, ImageViewer
           getItemCount={this._getItemCount}
           getItem={this._getItem}
           getItemLayout={this._getItemLayout}
-          scrollEnabled={!this.state.isZooming}
+          scrollEnabled
           ref={this._scrollRef}
           removeClippedSubviews={true}
           maxToRenderPerBatch={2}
@@ -84,7 +84,6 @@ class ImageViewer extends React.Component<ImageViewerComponentProps, ImageViewer
           pagingEnabled
           initialScrollIndex={this.props.initialIndex}
           listKey={'RNImageViewer'}
-          disableScrollViewPanResponder={!this.state.scrollEnabled}
           {...platformProps}
         />
       </Modal>

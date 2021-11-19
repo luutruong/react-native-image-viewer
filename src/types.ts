@@ -11,7 +11,6 @@ export interface ImageComponentProps extends ImageComponentOptionalProps {
   source: ImageURISource | ImageRequireSource;
   title?: string;
   onClose: () => void;
-  toggleEnableScroll: (enabled: boolean) => void;
   onZoomStateChange: (isZooming: boolean) => void;
 
   imageIndex: number;

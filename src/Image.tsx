@@ -12,6 +12,7 @@ import {
   PanResponderGestureState,
   Text,
   SafeAreaView,
+  Platform,
 } from 'react-native';
 import {
   HandlerStateChangeEvent,
@@ -102,13 +103,14 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
     }
 
     if (Math.abs(gesture.dx) > Math.abs(gesture.dy)) {
-      this.props.toggleEnableScroll(true);
-
+      this._debug('_onPanResponderMove', 'horizontal');
+      this.props.onZoomStateChange(false);
       return;
     }
 
-    this.props.toggleEnableScroll(false);
-    this._translateXY.setValue({x: 0, y: Math.max(0, gesture.dy)});
+    this._debug('_onPanResponderMove', 'vertical');
+    this.props.onZoomStateChange(true);
+    this._translateXY.setValue({x: 0, y: gesture.dy});
   }
   private _onPanResponderEnd(_evt: any, gesture: PanResponderGestureState) {
     if (!this._isGestureMoved) {
@@ -145,7 +147,6 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
       }).start(() => this.props.onClose());
     } else {
       // fixed case swipe left when jump restart
-      this.props.toggleEnableScroll(true);
       Animated.spring(this._translateXY, {
         toValue: {x: 0, y: 0},
         useNativeDriver: true,
@@ -176,7 +177,6 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
       ]).start();
       this._lastScale = 1;
       this._lastOffset = {x: 0, y: 0};
-      this.props.toggleEnableScroll(true);
     } else {
       const scale =
         this._getRatio() <= this._getMinimumScale() ? this._getMaximumScale() : SCREEN_WIDTH / this.state.width!;
@@ -232,7 +232,6 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
       });
       this._lastScale = scale;
       this._setIsZooming(true);
-      this.props.toggleEnableScroll(false);
     }
   };
 
@@ -265,7 +264,7 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
       let scale = evt.nativeEvent.scale as number;
       if (scale < this._getMinimumScale()) {
         scale = this._getMinimumScale();
-        this.props.toggleEnableScroll(true);
+
         this._setIsZooming(false);
       } else {
         scale = Math.min(this._getMaximumScale(), scale);
@@ -301,8 +300,6 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
         this._scale.setValue(Math.min(this._getMaximumScale(), scale));
         this._setIsZooming(true);
       }
-
-      this.props.toggleEnableScroll(false);
     }
   };
 
@@ -441,7 +438,10 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
     return (
       <View style={styles.container}>
         <Animated.View style={backdropStyle} {...this._panResponder.panHandlers} />
-        <Animated.View style={moveObjStyle} {...this._panResponder.panHandlers} renderToHardwareTextureAndroid>
+        <Animated.View
+          style={moveObjStyle}
+          {...(this.state.isZooming || Platform.OS === 'ios' ? this._panResponder.panHandlers : {})}
+          renderToHardwareTextureAndroid>
           <TapGestureHandler numberOfTaps={2} onActivated={this._handleImageZoomInOut}>
             <PinchGestureHandler
               onGestureEvent={this._onPinchGestureEvent}
