@@ -31,6 +31,7 @@ export interface ImageComponentState {
   width: number | null;
   height: number | null;
   loading: boolean;
+  scale: number;
 }
 
 // index.tsx

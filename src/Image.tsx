@@ -51,6 +51,7 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
       width: null,
       height: null,
       loading: true,
+      scale: 1,
     } as ImageComponentState;
 
     this._translateXY = new Animated.ValueXY();
@@ -160,6 +161,7 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
 
     if (this._lastScale > this._getMinimumScale()) {
       this._translateXY.setOffset({x: 0, y: 0});
+      this.setState({scale: 1});
       Animated.parallel([
         Animated.timing(this._translateXY, {
           toValue: {x: 0, y: 0},
@@ -229,6 +231,7 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
         this._lastOffset = {x, y};
       });
       this._lastScale = scale;
+      this.setState({scale});
       this.props.toggleEnableScroll(false);
     }
   };
@@ -295,6 +298,7 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
         this._scale.setValue(Math.min(this._getMaximumScale(), scale));
       }
 
+      this.setState({scale: scale});
       this.props.toggleEnableScroll(false);
     }
   };
@@ -302,6 +306,10 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
   private _debug = (...args: any[]) => this.props.debug && console.log(...args);
 
   private _renderHeader = () => {
+    if (this.state.scale > 1) {
+      return null;
+    }
+
     const headerAnim: any = [
       styles.header,
       {
@@ -330,6 +338,10 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
   private _renderFooter = () => {
     const {renderFooter} = this.props;
     if (typeof renderFooter !== 'function' && !this.props.title) {
+      return null;
+    }
+
+    if (this.state.scale > 1) {
       return null;
     }
 
