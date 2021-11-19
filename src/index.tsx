@@ -8,6 +8,7 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 class ImageViewer extends React.Component<ImageViewerComponentProps, ImageViewerComponentState> {
   state: ImageViewerComponentState = {
     scrollEnabled: true,
+    isZooming: false,
   };
   static defaultProps = {
     animationType: 'none',
@@ -22,6 +23,7 @@ class ImageViewer extends React.Component<ImageViewerComponentProps, ImageViewer
       title={info.item.title}
       onClose={this._closeInternal}
       toggleEnableScroll={this._handleToggleScrollState}
+      onZoomStateChange={this._onZoomStateChange}
       imageIndex={info.index}
       imagesTotal={this._getItemCount()}
       // extendable props
@@ -32,6 +34,7 @@ class ImageViewer extends React.Component<ImageViewerComponentProps, ImageViewer
     />
   );
 
+  private _onZoomStateChange = (isZooming: boolean) => this.setState({isZooming});
   private _handleToggleScrollState = (enabled: boolean) => {
     this.setState({scrollEnabled: enabled});
   };
@@ -72,7 +75,7 @@ class ImageViewer extends React.Component<ImageViewerComponentProps, ImageViewer
           getItemCount={this._getItemCount}
           getItem={this._getItem}
           getItemLayout={this._getItemLayout}
-          scrollEnabled={this.state.scrollEnabled}
+          scrollEnabled={!this.state.isZooming}
           ref={this._scrollRef}
           removeClippedSubviews={true}
           maxToRenderPerBatch={2}

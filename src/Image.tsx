@@ -51,7 +51,7 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
       width: null,
       height: null,
       loading: true,
-      scale: 1,
+      isZooming: false,
     } as ImageComponentState;
 
     this._translateXY = new Animated.ValueXY();
@@ -104,7 +104,7 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
     if (Math.abs(gesture.dx) > Math.abs(gesture.dy)) {
       this.props.toggleEnableScroll(true);
 
-      return false;
+      return;
     }
 
     this.props.toggleEnableScroll(false);
@@ -161,7 +161,7 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
 
     if (this._lastScale > this._getMinimumScale()) {
       this._translateXY.setOffset({x: 0, y: 0});
-      this.setState({scale: 1});
+      this._setIsZooming(false);
       Animated.parallel([
         Animated.timing(this._translateXY, {
           toValue: {x: 0, y: 0},
@@ -231,7 +231,7 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
         this._lastOffset = {x, y};
       });
       this._lastScale = scale;
-      this.setState({scale});
+      this._setIsZooming(true);
       this.props.toggleEnableScroll(false);
     }
   };
@@ -266,8 +266,10 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
       if (scale < this._getMinimumScale()) {
         scale = this._getMinimumScale();
         this.props.toggleEnableScroll(true);
+        this._setIsZooming(false);
       } else {
         scale = Math.min(this._getMaximumScale(), scale);
+        this._setIsZooming(true);
       }
 
       this._lastScale = scale;
@@ -294,19 +296,21 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
 
       if (scale < this._getMinimumScale()) {
         this._scale.setValue(this._getMinimumScale());
+        this._setIsZooming(false);
       } else {
         this._scale.setValue(Math.min(this._getMaximumScale(), scale));
+        this._setIsZooming(true);
       }
 
-      this.setState({scale: scale});
       this.props.toggleEnableScroll(false);
     }
   };
 
   private _debug = (...args: any[]) => this.props.debug && console.log(...args);
+  private _setIsZooming = (isZooming: boolean) => this.setState({isZooming}, () => this.props.onZoomStateChange(isZooming));
 
   private _renderHeader = () => {
-    if (this.state.scale > 1) {
+    if (this.state.isZooming) {
       return null;
     }
 
@@ -341,7 +345,7 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
       return null;
     }
 
-    if (this.state.scale > 1) {
+    if (this.state.isZooming) {
       return null;
     }
 
@@ -437,7 +441,7 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
     return (
       <View style={styles.container}>
         <Animated.View style={backdropStyle} {...this._panResponder.panHandlers} />
-        <Animated.View style={moveObjStyle} {...this._panResponder.panHandlers}>
+        <Animated.View style={moveObjStyle} {...this._panResponder.panHandlers} renderToHardwareTextureAndroid>
           <TapGestureHandler numberOfTaps={2} onActivated={this._handleImageZoomInOut}>
             <PinchGestureHandler
               onGestureEvent={this._onPinchGestureEvent}
