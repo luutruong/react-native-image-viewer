@@ -110,7 +110,7 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
 
     this._debug('_onPanResponderMove', 'vertical');
     this.props.onZoomStateChange(true);
-    this._translateXY.setValue({x: 0, y: gesture.dy});
+    this._translateXY.setValue({x: 0, y: Math.max(0, gesture.dy)});
   }
   private _onPanResponderEnd(_evt: any, gesture: PanResponderGestureState) {
     if (!this._isGestureMoved) {
