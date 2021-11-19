@@ -72,7 +72,7 @@ class ImageViewer extends React.Component<ImageViewerComponentProps, ImageViewer
           getItemCount={this._getItemCount}
           getItem={this._getItem}
           getItemLayout={this._getItemLayout}
-          scrollEnabled
+          scrollEnabled={this.state.scrollEnabled}
           ref={this._scrollRef}
           removeClippedSubviews={true}
           maxToRenderPerBatch={2}
