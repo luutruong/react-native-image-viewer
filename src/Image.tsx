@@ -15,11 +15,9 @@ import {
   Platform,
 } from 'react-native';
 import {
-  HandlerStateChangeEvent,
-  TapGestureHandler,
-  PinchGestureHandler,
-  State,
-  GestureEvent,
+  GestureDetector,
+  Gesture,
+  GestureStateChangeEvent,
 } from 'react-native-gesture-handler';
 import {ImageComponentOptionalProps, ImageComponentProps, ImageComponentState} from './types';
 
@@ -157,8 +155,8 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
   private _getMaximumScale = (): number => 2.5;
   private _getMinimumScale = (): number => 1.0;
 
-  private _handleImageZoomInOut = (evt: HandlerStateChangeEvent) => {
-    this._debug('double tab triggered', '_scaleNum', this._lastScale, evt.nativeEvent, 'ratio', this._getRatio());
+  private _handleImageZoomInOut = (evt: GestureStateChangeEvent<any>) => {
+    this._debug('double tab triggered', '_scaleNum', this._lastScale, evt, 'ratio', this._getRatio());
 
     if (this._lastScale > this._getMinimumScale()) {
       this._translateXY.setOffset({x: 0, y: 0});
@@ -187,8 +185,8 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
       const newHeight = scale * oldHeight;
       const padding = 50;
 
-      let x = evt.nativeEvent.x as number;
-      let y = evt.nativeEvent.y as number;
+      let x = evt.x as number;
+      let y = evt.y as number;
 
       const horizontalCenter = (newWidth - SCREEN_WIDTH) / 2;
       const verticalCenter = (newHeight - SCREEN_HEIGHT) / 2;
@@ -257,49 +255,45 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
 
   private _onImageLoadEnd = () => this.setState({loading: false});
 
-  private _onPinchHandlerStateChange = (evt: HandlerStateChangeEvent) => {
-    if (evt.nativeEvent.oldState === State.ACTIVE) {
-      this._debug('_onPinchHandlerStateChange', evt.nativeEvent);
+  private _onPinchEnd = (evt: GestureStateChangeEvent<any>) => {
+    this._debug('_onPinchEnd', evt);
 
-      let scale = evt.nativeEvent.scale as number;
-      if (scale < this._getMinimumScale()) {
-        scale = this._getMinimumScale();
+    let scale = evt.scale as number;
+    if (scale < this._getMinimumScale()) {
+      scale = this._getMinimumScale();
 
-        this._setIsZooming(false);
-      } else {
-        scale = Math.min(this._getMaximumScale(), scale);
-        this._setIsZooming(true);
-      }
-
-      this._lastScale = scale;
-
-      this._translateXY.setOffset({x: 0, y: 0});
-      this._lastOffset = {x: 0, y: 0};
-      Animated.parallel([
-        Animated.timing(this._scale, {
-          toValue: scale,
-          duration: 250,
-          useNativeDriver: true,
-        }),
-        Animated.timing(this._translateXY, {
-          toValue: {x: 0, y: 0},
-          duration: 250,
-          useNativeDriver: true,
-        }),
-      ]).start();
+      this._setIsZooming(false);
+    } else {
+      scale = Math.min(this._getMaximumScale(), scale);
+      this._setIsZooming(true);
     }
-  };
-  private _onPinchGestureEvent = (evt: GestureEvent) => {
-    if (evt.nativeEvent.state === State.ACTIVE) {
-      const scale = this._lastScale * (evt.nativeEvent.scale as number);
 
-      if (scale < this._getMinimumScale()) {
-        this._scale.setValue(this._getMinimumScale());
-        this._setIsZooming(false);
-      } else {
-        this._scale.setValue(Math.min(this._getMaximumScale(), scale));
-        this._setIsZooming(true);
-      }
+    this._lastScale = scale;
+
+    this._translateXY.setOffset({x: 0, y: 0});
+    this._lastOffset = {x: 0, y: 0};
+    Animated.parallel([
+      Animated.timing(this._scale, {
+        toValue: scale,
+        duration: 250,
+        useNativeDriver: true,
+      }),
+      Animated.timing(this._translateXY, {
+        toValue: {x: 0, y: 0},
+        duration: 250,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+  private _onPinchUpdate = (evt: GestureStateChangeEvent<any>) => {
+    const scale = this._lastScale * (evt.scale as number);
+
+    if (scale < this._getMinimumScale()) {
+      this._scale.setValue(this._getMinimumScale());
+      this._setIsZooming(false);
+    } else {
+      this._scale.setValue(Math.min(this._getMaximumScale(), scale));
+      this._setIsZooming(true);
     }
   };
 
@@ -373,6 +367,18 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
     return <Animated.View style={footerAnim}>{innerComponent}</Animated.View>;
   };
 
+  private _gestureDoubleTap = () => Gesture.Tap().maxDuration(250).numberOfTaps(2).onStart((evt) => {
+    console.log('_gestureDoubleTap', 'onStart');
+    this._handleImageZoomInOut(evt);
+  });
+  private _gesturePinch = () => Gesture.Pinch().onEnd((evt) => {
+    console.log('_gesturePinch', 'onEnd');
+    this._onPinchEnd(evt);
+  }).onUpdate((evt) => {
+    console.log('_gesturePinch', 'onUpdate', evt);
+    this._onPinchUpdate(evt);
+  });
+
   static getDerivedStateFromProps(
     nextProps: Readonly<ImageComponentProps>,
     prevState: Readonly<ImageComponentState>
@@ -442,14 +448,9 @@ class Image extends React.Component<ImageComponentProps, ImageComponentState> {
           style={moveObjStyle}
           {...(this.state.isZooming || Platform.OS === 'ios' ? this._panResponder.panHandlers : {})}
           renderToHardwareTextureAndroid>
-          <TapGestureHandler numberOfTaps={2} onActivated={this._handleImageZoomInOut}>
-            <PinchGestureHandler
-              onGestureEvent={this._onPinchGestureEvent}
-              onHandlerStateChange={this._onPinchHandlerStateChange}
-            >
-              <RNImage source={this.props.source} style={computeImageStyle} onLoadEnd={this._onImageLoadEnd} />
-            </PinchGestureHandler>
-          </TapGestureHandler>
+          <GestureDetector gesture={Gesture.Exclusive(this._gestureDoubleTap(), this._gesturePinch())}>
+            <RNImage source={this.props.source} style={computeImageStyle} onLoadEnd={this._onImageLoadEnd} />
+          </GestureDetector>
         </Animated.View>
         <SafeAreaView style={styles.safeAreaContainer} pointerEvents="none">
           {this._renderHeader()}
