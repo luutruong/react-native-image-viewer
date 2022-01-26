@@ -1,0 +1,33 @@
+import React from 'react';
+import { ImageComponentOptionalProps, ImageComponentProps, ImageComponentState } from './types';
+declare class Image extends React.Component<ImageComponentProps, ImageComponentState> {
+    static defaultProps: ImageComponentOptionalProps;
+    private _panResponder;
+    private _translateXY;
+    private _scale;
+    private _lastOffset;
+    private _lastScale;
+    private _isGestureMoved;
+    constructor(props: ImageComponentProps);
+    private _onShouldSetPanResponder;
+    private _onPanResponderMove;
+    private _onPanResponderEnd;
+    private _getMaximumScale;
+    private _getMinimumScale;
+    private _handleImageZoomInOut;
+    private _getRatio;
+    private _computeMoveBounds;
+    private _onImageLoadEnd;
+    private _onPinchEnd;
+    private _onPinchUpdate;
+    private _debug;
+    private _setIsZooming;
+    private _renderHeader;
+    private _renderFooter;
+    private _gestureDoubleTap;
+    private _gesturePinch;
+    static getDerivedStateFromProps(nextProps: Readonly<ImageComponentProps>, prevState: Readonly<ImageComponentState>): any;
+    componentDidMount(): void;
+    render(): JSX.Element;
+}
+export default Image;

@@ -1,21 +1,18 @@
-export interface ImageViewerImageProps {
-  url: string;
-  title?: string;
-  headers?: {[key: string]: any};
-  width?: number;
-  height?: number;
+import React from 'react';
+import { ImageViewerComponentProps, ImageViewerComponentState } from './types';
+declare class ImageViewer extends React.Component<ImageViewerComponentProps, ImageViewerComponentState> {
+    state: ImageViewerComponentState;
+    static defaultProps: {
+        animationType: string;
+    };
+    private _scrollRef;
+    private _closeInternal;
+    private _renderImage;
+    private _onZoomStateChange;
+    private _getItemCount;
+    private _getItem;
+    private _getItemLayout;
+    private _keyExtractor;
+    render(): JSX.Element;
 }
-
-export interface ImageComponentProps {
-  image: ImageViewerImageProps;
-  onClose: () => void;
-  onSwipe: (direction: SwipeDirection) => void;
-  onImageZoom: (isZoomOut: boolean) => void;
-}
-export interface ImageComponentState {
-  width: number | null;
-  height: number | null;
-  loading: boolean;
-}
-
-export type SwipeDirection = 'up' | 'down' | 'left' | 'right';
+export default ImageViewer;
