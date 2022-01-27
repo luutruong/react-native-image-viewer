@@ -369,8 +369,9 @@ class ImageComponent extends React.Component<ImageComponentProps, ImageComponent
   };
 
   private _gestureDoubleTap = () => Gesture.Tap().maxDuration(250).numberOfTaps(2).onStart((evt) => {
-    this._debug('_gestureDoubleTap', 'onStart', this);
+    this._debug('_gestureDoubleTap', 'onStart');
     this._handleImageZoomInOut(evt);
+    this._debug('_gestureDoubleTap', 'this._handleImageZoomInOut', '-> ok');
   });
   private _gesturePinch = () => Gesture.Pinch().onEnd((evt) => {
     this._debug('_gesturePinch', 'onEnd');

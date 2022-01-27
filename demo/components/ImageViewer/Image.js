@@ -232,8 +232,9 @@ var ImageComponent = /** @class */ (function (_super) {
             return <Animated.View style={footerAnim}>{innerComponent}</Animated.View>;
         };
         _this._gestureDoubleTap = function () { return Gesture.Tap().maxDuration(250).numberOfTaps(2).onStart(function (evt) {
-            _this._debug('_gestureDoubleTap', 'onStart', _this);
+            _this._debug('_gestureDoubleTap', 'onStart');
             _this._handleImageZoomInOut(evt);
+            _this._debug('_gestureDoubleTap', 'this._handleImageZoomInOut', '-> ok');
         }); };
         _this._gesturePinch = function () { return Gesture.Pinch().onEnd(function (evt) {
             _this._debug('_gesturePinch', 'onEnd');
