@@ -14,12 +14,6 @@ import {
   SafeAreaView,
   Platform,
 } from 'react-native';
-import {
-  GestureDetector,
-  Gesture,
-  GestureStateChangeEvent,
-  gestureHandlerRootHOC,
-} from 'react-native-gesture-handler';
 import {ImageComponentOptionalProps, ImageComponentProps, ImageComponentState} from './types';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -43,6 +37,7 @@ class ImageComponent extends React.Component<ImageComponentProps, ImageComponent
   private _lastScale: number = 1;
 
   private _isGestureMoved: boolean = false;
+  private _lastTap: number = 0;
 
   constructor(props: ImageComponentProps) {
     super(props);
@@ -71,15 +66,27 @@ class ImageComponent extends React.Component<ImageComponentProps, ImageComponent
       onPanResponderTerminate: onPanEnd,
       onPanResponderRelease: onPanEnd,
       onPanResponderMove: onPanMove,
+
+      onPanResponderGrant: this._onPanResponderGrant,
     });
   }
 
   private _onShouldSetPanResponder(evt: GestureResponderEvent) {
-    return evt.nativeEvent.touches.length === 1;
+    return evt.nativeEvent.touches.length <= 2;
+  }
+
+  private _onPanResponderGrant = (_evt: any, gesture: PanResponderGestureState) => {
+    if (gesture.numberActiveTouches === 2) {
+      this._debug('_onPanResponderGrant', gesture);
+    }
   }
 
   private _onPanResponderMove(_evt: any, gesture: PanResponderGestureState) {
     this._debug('_onPanResponderMove', 'dx', gesture.dx, 'dy', gesture.dy, this._lastOffset);
+    if (gesture.numberActiveTouches === 2) {
+      return;
+    }
+
     this._isGestureMoved = true;
 
     if (this._lastScale > this._getMinimumScale()) {
@@ -111,7 +118,22 @@ class ImageComponent extends React.Component<ImageComponentProps, ImageComponent
     this.props.onZoomStateChange(true);
     this._translateXY.setValue({x: 0, y: Math.max(0, gesture.dy)});
   }
-  private _onPanResponderEnd(_evt: any, gesture: PanResponderGestureState) {
+  private _onPanResponderEnd(_evt: GestureResponderEvent, gesture: PanResponderGestureState) {
+    this._debug('_onPanResponderEnd', 'gesture.numberActiveTouches', gesture.numberActiveTouches);
+    if (gesture.numberActiveTouches === 0) {
+      this._debug('_onPanResponderEnd', 'gesture.dx', gesture.dx, 'gesture.dy', gesture.dy);
+      if (Math.abs(gesture.dx) < 10 && Math.abs(gesture.dy) < 10) {
+        this._handleTap({
+          x: gesture.x0,
+          y: gesture.y0
+        });
+
+        return; 
+      }
+    } else if (gesture.numberActiveTouches === 2) {
+      return;
+    }
+
     if (!this._isGestureMoved) {
       return;
     }
@@ -156,7 +178,7 @@ class ImageComponent extends React.Component<ImageComponentProps, ImageComponent
   private _getMaximumScale = (): number => 2.5;
   private _getMinimumScale = (): number => 1.0;
 
-  private _handleImageZoomInOut = (evt: GestureStateChangeEvent<any>) => {
+  private _handleImageZoomInOut = (evt: {x: number; y: number}) => {
     this._debug('double tab triggered', '_scaleNum', this._lastScale, evt, 'ratio', this._getRatio());
 
     if (this._lastScale > this._getMinimumScale()) {
@@ -232,6 +254,19 @@ class ImageComponent extends React.Component<ImageComponentProps, ImageComponent
       this._lastScale = scale;
       this._setIsZooming(true);
     }
+  };
+
+  private _handleTap = (tapCoords: {x: number; y: number}) => {
+    const now = (new Date()).getTime();
+    const delta = now - this._lastTap;
+
+    this._debug('_handleTap', '_lastTap', this._lastTap, 'delta', delta);
+    if (delta <= 500) {
+      // double tap
+      this._handleImageZoomInOut(tapCoords);
+    }
+
+    this._lastTap = now;
   };
 
   private _getRatio = () =>
@@ -368,19 +403,6 @@ class ImageComponent extends React.Component<ImageComponentProps, ImageComponent
     return <Animated.View style={footerAnim}>{innerComponent}</Animated.View>;
   };
 
-  private _gestureDoubleTap = () => Gesture.Tap().maxDuration(250).numberOfTaps(2).onStart((evt) => {
-    this._debug('_gestureDoubleTap', 'onStart');
-    this._handleImageZoomInOut(evt);
-    this._debug('_gestureDoubleTap', 'this._handleImageZoomInOut', '-> ok');
-  });
-  private _gesturePinch = () => Gesture.Pinch().onEnd((evt) => {
-    this._debug('_gesturePinch', 'onEnd');
-    this._onPinchEnd(evt);
-  }).onUpdate((evt) => {
-    this._debug('_gesturePinch', 'onUpdate', evt);
-    this._onPinchUpdate(evt);
-  });
-
   static getDerivedStateFromProps(
     nextProps: Readonly<ImageComponentProps>,
     prevState: Readonly<ImageComponentState>
@@ -450,9 +472,7 @@ class ImageComponent extends React.Component<ImageComponentProps, ImageComponent
           style={moveObjStyle}
           {...(this.state.isZooming || Platform.OS === 'ios' ? this._panResponder.panHandlers : {})}
           renderToHardwareTextureAndroid>
-          <GestureDetector gesture={Gesture.Exclusive(this._gestureDoubleTap(), this._gesturePinch())}>
             <RNImage source={this.props.source} style={computeImageStyle} onLoadEnd={this._onImageLoadEnd} />
-          </GestureDetector>
         </Animated.View>
         <SafeAreaView style={styles.safeAreaContainer} pointerEvents="none">
           {this._renderHeader()}
@@ -496,6 +516,4 @@ const styles = StyleSheet.create({
   },
 });
 
-const Image = gestureHandlerRootHOC((props: ImageComponentProps) => <ImageComponent {...props} />);
-
-export default Image;
+export default ImageComponent;
