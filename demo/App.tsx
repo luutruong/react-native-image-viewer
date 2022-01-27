@@ -83,7 +83,7 @@ const App: () => Node = () => {
         visible={visible}
         onClose={() => setVisible(false)}
         animationType="slide"
-        debug
+        debug={false}
       />
     </SafeAreaView>
   );
