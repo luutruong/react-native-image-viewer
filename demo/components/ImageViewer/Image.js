@@ -24,12 +24,12 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
 };
 import React from 'react';
 import { Animated, Image as RNImage, ActivityIndicator, PanResponder, Dimensions, StyleSheet, View, Text, SafeAreaView, Platform, } from 'react-native';
-import { GestureDetector, Gesture, } from 'react-native-gesture-handler';
+import { GestureDetector, Gesture, gestureHandlerRootHOC, } from 'react-native-gesture-handler';
 var SCREEN_WIDTH = Dimensions.get('window').width;
 var SCREEN_HEIGHT = Dimensions.get('window').height;
-var Image = /** @class */ (function (_super) {
-    __extends(Image, _super);
-    function Image(props) {
+var ImageComponent = /** @class */ (function (_super) {
+    __extends(ImageComponent, _super);
+    function ImageComponent(props) {
         var _this = _super.call(this, props) || this;
         _this._scale = new Animated.Value(1);
         _this._lastOffset = { x: 0, y: 0 };
@@ -264,10 +264,10 @@ var Image = /** @class */ (function (_super) {
         });
         return _this;
     }
-    Image.prototype._onShouldSetPanResponder = function (evt) {
+    ImageComponent.prototype._onShouldSetPanResponder = function (evt) {
         return evt.nativeEvent.touches.length === 1;
     };
-    Image.prototype._onPanResponderMove = function (_evt, gesture) {
+    ImageComponent.prototype._onPanResponderMove = function (_evt, gesture) {
         this._debug('_onPanResponderMove', 'dx', gesture.dx, 'dy', gesture.dy, this._lastOffset);
         this._isGestureMoved = true;
         if (this._lastScale > this._getMinimumScale()) {
@@ -293,7 +293,7 @@ var Image = /** @class */ (function (_super) {
         this.props.onZoomStateChange(true);
         this._translateXY.setValue({ x: 0, y: Math.max(0, gesture.dy) });
     };
-    Image.prototype._onPanResponderEnd = function (_evt, gesture) {
+    ImageComponent.prototype._onPanResponderEnd = function (_evt, gesture) {
         var _this = this;
         if (!this._isGestureMoved) {
             return;
@@ -330,7 +330,7 @@ var Image = /** @class */ (function (_super) {
             }).start();
         }
     };
-    Image.getDerivedStateFromProps = function (nextProps, prevState) {
+    ImageComponent.getDerivedStateFromProps = function (nextProps, prevState) {
         if (prevState.width === null || prevState.height === null) {
             var resolveSource = RNImage.resolveAssetSource(nextProps.source);
             return {
@@ -340,7 +340,7 @@ var Image = /** @class */ (function (_super) {
         }
         return null;
     };
-    Image.prototype.componentDidMount = function () {
+    ImageComponent.prototype.componentDidMount = function () {
         var _this = this;
         if (!this.state.width || !this.state.height) {
             this._debug('Image', 'fetch image size with headers', this.props.source);
@@ -350,7 +350,7 @@ var Image = /** @class */ (function (_super) {
             });
         }
     };
-    Image.prototype.render = function () {
+    ImageComponent.prototype.render = function () {
         var moveObjStyle = {
             position: 'absolute',
             transform: __spreadArray(__spreadArray([], this._translateXY.getTranslateTransform(), true), [
@@ -394,13 +394,13 @@ var Image = /** @class */ (function (_super) {
         </SafeAreaView>
       </View>);
     };
-    Image.defaultProps = {
+    ImageComponent.defaultProps = {
         initialWidth: 200,
         initialHeight: 200,
         debug: false,
         renderFooter: undefined,
     };
-    return Image;
+    return ImageComponent;
 }(React.Component));
 var styles = StyleSheet.create({
     container: {
@@ -433,4 +433,5 @@ var styles = StyleSheet.create({
         borderRadius: 10,
     },
 });
+var Image = gestureHandlerRootHOC(function (props) { return <ImageComponent {...props}/>; });
 export default Image;

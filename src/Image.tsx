@@ -18,13 +18,14 @@ import {
   GestureDetector,
   Gesture,
   GestureStateChangeEvent,
+  gestureHandlerRootHOC,
 } from 'react-native-gesture-handler';
 import {ImageComponentOptionalProps, ImageComponentProps, ImageComponentState} from './types';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
-class Image extends React.Component<ImageComponentProps, ImageComponentState> {
+class ImageComponent extends React.Component<ImageComponentProps, ImageComponentState> {
   static defaultProps: ImageComponentOptionalProps = {
     initialWidth: 200,
     initialHeight: 200,
@@ -493,5 +494,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
 });
+
+const Image = gestureHandlerRootHOC((props: ImageComponentProps) => <ImageComponent {...props} />);
 
 export default Image;
