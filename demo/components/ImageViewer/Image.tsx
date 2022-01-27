@@ -13,10 +13,8 @@ import {
   Text,
   SafeAreaView,
   Platform,
-  TouchableOpacity,
 } from 'react-native';
 import {ImageComponentOptionalProps, ImageComponentProps, ImageComponentState} from './types';
-import DoubleTap from './DoubleTap';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -39,6 +37,11 @@ class ImageComponent extends React.Component<ImageComponentProps, ImageComponent
   private _lastScale: number = 1;
 
   private _isGestureMoved: boolean = false;
+  private _lastTap: number = 0;
+
+  private _distance: number = 150.0;
+  private _isPinching: boolean = false;
+  private _currentScale: number = 1.0;
 
   constructor(props: ImageComponentProps) {
     super(props);
@@ -53,29 +56,53 @@ class ImageComponent extends React.Component<ImageComponentProps, ImageComponent
     this._translateXY = new Animated.ValueXY();
     this._scale = new Animated.Value(1);
 
-    const onShouldSetPanResponder = this._onShouldSetPanResponder.bind(this);
-    const onPanMove = this._onPanResponderMove.bind(this);
-    const onPanEnd = this._onPanResponderEnd.bind(this);
-
     this._panResponder = PanResponder.create({
-      onStartShouldSetPanResponder: onShouldSetPanResponder,
-      onStartShouldSetPanResponderCapture: () => true,
+      onStartShouldSetPanResponder: this._onShouldSetPanResponder,
+      // onStartShouldSetPanResponderCapture: () => true,
 
       onMoveShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponderCapture: () => true,
 
-      onPanResponderTerminate: onPanEnd,
-      onPanResponderRelease: onPanEnd,
-      onPanResponderMove: onPanMove,
+      // onPanResponderTerminate: onPanEnd,
+      onPanResponderTerminationRequest: () => false,
+
+      onPanResponderRelease: this._onPanResponderRelease,
+      onPanResponderMove: this._onPanResponderMove,
+
+      onPanResponderGrant: this._onPanResponderGrant,
+      onShouldBlockNativeResponder: () => true,
     });
   }
 
-  private _onShouldSetPanResponder(evt: GestureResponderEvent) {
-    return evt.nativeEvent.touches.length === 1;
+  private _onShouldSetPanResponder = (evt: GestureResponderEvent) => evt.nativeEvent.touches.length <= 2;
+
+  private _onPanResponderGrant = (evt: GestureResponderEvent, gesture: PanResponderGestureState) => {
+    if (gesture.numberActiveTouches === 2) {
+      const dx = Math.abs(evt.nativeEvent.touches[0].pageX - evt.nativeEvent.touches[1].pageX)
+      const dy = Math.abs(evt.nativeEvent.touches[0].pageY - evt.nativeEvent.touches[1].pageY);
+
+      this._distance = Math.sqrt(dx * dx + dy * dy);
+      this._debug('_onPanResponderGrant', 'distance', this._distance);
+      this._isPinching = true;
+    }
   }
 
-  private _onPanResponderMove(_evt: any, gesture: PanResponderGestureState) {
+  private _onPanResponderMove = (evt: GestureResponderEvent, gesture: PanResponderGestureState) => {
     this._debug('_onPanResponderMove', 'dx', gesture.dx, 'dy', gesture.dy, this._lastOffset);
+    if (gesture.numberActiveTouches === 2) {
+      const dx = Math.abs(evt.nativeEvent.touches[0].pageX - evt.nativeEvent.touches[1].pageX)
+      const dy = Math.abs(evt.nativeEvent.touches[0].pageY - evt.nativeEvent.touches[1].pageY);
+
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      const scale = (distance / this._distance) * this._lastScale;
+      this._debug('_onPanResponderMove', 'pinch to zoom', 'scale', scale);
+      this._onPinchUpdate({scale});
+
+      this._currentScale = scale;
+
+      return;
+    }
+
     this._isGestureMoved = true;
 
     if (this._lastScale > this._getMinimumScale()) {
@@ -107,7 +134,26 @@ class ImageComponent extends React.Component<ImageComponentProps, ImageComponent
     this.props.onZoomStateChange(true);
     this._translateXY.setValue({x: 0, y: Math.max(0, gesture.dy)});
   }
-  private _onPanResponderEnd(_evt: any, gesture: PanResponderGestureState) {
+  private _onPanResponderRelease = (_evt: GestureResponderEvent, gesture: PanResponderGestureState) => {
+    this._debug('_onPanResponderRelease', 'gesture.numberActiveTouches', gesture.numberActiveTouches);
+    if (this._isPinching) {
+      this._isPinching = false;
+      this._onPinchEnd({scale: this._currentScale});
+      return;
+    }
+
+    if (gesture.numberActiveTouches === 0) {
+      this._debug('_onPanResponderRelease', 'gesture.dx', gesture.dx, 'gesture.dy', gesture.dy);
+      if (Math.abs(gesture.dx) < 10 && Math.abs(gesture.dy) < 10) {
+        this._handleTap({
+          x: gesture.x0,
+          y: gesture.y0
+        });
+
+        return; 
+      }
+    }
+
     if (!this._isGestureMoved) {
       return;
     }
@@ -152,7 +198,7 @@ class ImageComponent extends React.Component<ImageComponentProps, ImageComponent
   private _getMaximumScale = (): number => 2.5;
   private _getMinimumScale = (): number => 1.0;
 
-  private _handleImageZoomInOut = (evt: GestureStateChangeEvent<any>) => {
+  private _handleImageZoomInOut = (evt: {x: number; y: number}) => {
     this._debug('double tab triggered', '_scaleNum', this._lastScale, evt, 'ratio', this._getRatio());
 
     if (this._lastScale > this._getMinimumScale()) {
@@ -230,6 +276,19 @@ class ImageComponent extends React.Component<ImageComponentProps, ImageComponent
     }
   };
 
+  private _handleTap = (tapCoords: {x: number; y: number}) => {
+    const now = (new Date()).getTime();
+    const delta = now - this._lastTap;
+
+    this._debug('_handleTap', '_lastTap', this._lastTap, 'delta', delta);
+    if (delta <= 500) {
+      // double tap
+      this._handleImageZoomInOut(tapCoords);
+    }
+
+    this._lastTap = now;
+  };
+
   private _getRatio = () =>
     this.state.width
       ? this.state.width >= SCREEN_WIDTH
@@ -252,7 +311,7 @@ class ImageComponent extends React.Component<ImageComponentProps, ImageComponent
 
   private _onImageLoadEnd = () => this.setState({loading: false});
 
-  private _onPinchEnd = (evt: GestureStateChangeEvent<any>) => {
+  private _onPinchEnd = (evt: {scale: number}) => {
     this._debug('_onPinchEnd', evt);
 
     let scale = evt.scale as number;
@@ -282,8 +341,8 @@ class ImageComponent extends React.Component<ImageComponentProps, ImageComponent
       }),
     ]).start();
   };
-  private _onPinchUpdate = (evt: GestureStateChangeEvent<any>) => {
-    const scale = this._lastScale * (evt.scale as number);
+  private _onPinchUpdate = (evt: {scale: number}) => {
+    const scale = evt.scale;
 
     if (scale < this._getMinimumScale()) {
       this._scale.setValue(this._getMinimumScale());
@@ -429,14 +488,12 @@ class ImageComponent extends React.Component<ImageComponentProps, ImageComponent
     return (
       <View style={styles.container}>
         <Animated.View style={backdropStyle} {...this._panResponder.panHandlers} />
-        <DoubleTap style={{flex: 1}}>
-          <Animated.View
-            style={moveObjStyle}
-            {...(this.state.isZooming || Platform.OS === 'ios' ? this._panResponder.panHandlers : {})}
-            renderToHardwareTextureAndroid>
-              <RNImage source={this.props.source} style={computeImageStyle} onLoadEnd={this._onImageLoadEnd} />
-          </Animated.View>
-        </DoubleTap>
+        <Animated.View
+          style={moveObjStyle}
+          {...(this.state.isZooming || Platform.OS === 'ios' ? this._panResponder.panHandlers : {})}
+          renderToHardwareTextureAndroid>
+            <RNImage source={this.props.source} style={computeImageStyle} onLoadEnd={this._onImageLoadEnd} />
+        </Animated.View>
         <SafeAreaView style={styles.safeAreaContainer} pointerEvents="none">
           {this._renderHeader()}
           {this.state.loading && <ActivityIndicator color={'#fff'} />}

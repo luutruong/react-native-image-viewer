@@ -1,12 +1,27 @@
 import React from 'react';
-import {TouchableOpacity, View} from 'react-native';
+import {TouchableWithoutFeedback} from 'react-native';
 
 export default function DoubleTap(props: {children: any}) {
-  const onPress = () => console.log('foo.', Date.now());
+  let lastPressed = 0;
+  const onPress = React.useCallback(() => {
+    console.log('onPress', lastPressed);
+    if (lastPressed === 0) {
+      lastPressed = Date.now();
+      console.log(' -> ', lastPressed);
+    } else {
+      const diff = Date.now() - lastPressed;
+      console.log(diff);
+      if (diff <= 500) {
+        console.log('double tap!');
+      }
+
+      lastPressed = 0;
+    }
+  }, []);
 
   return (
-    <TouchableOpacity disabled={false} onPress={() => onPress()} activeOpacity={0.4} {...props}>
-      <View style={{flex:1, backgroundColor: 'blue'}}>{props.children}</View>
-    </TouchableOpacity>
+    <TouchableWithoutFeedback onPress={onPress}>
+      {props.children}
+    </TouchableWithoutFeedback>
   );
 }
