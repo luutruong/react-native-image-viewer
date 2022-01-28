@@ -10,16 +10,14 @@
 Yarn:
 
 ```bash
-yarn add @luu-truong/react-native-image-viewer react-native-gesture-handler
+yarn add @luu-truong/react-native-image-viewer
 ```
 
 NPM:
 
 ```bash
-npm install @luu-truong/react-native-image-viewer react-native-gesture-handler
+npm install @luu-truong/react-native-image-viewer
 ```
-
-To complete installation you must following [this guide](https://docs.swmansion.com/react-native-gesture-handler/docs/) to setup `react-native-gesture-handler`
 
 Usage:
 
